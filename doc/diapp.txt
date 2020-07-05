@@ -1,0 +1,215 @@
+*diapp.txt*  Commands (hopefully) useful for software development activities
+*diapp*
+
+                               DIAPP USER MANUAL
+
+
+Author:      Thierry Rascle <thierr26@free.fr>
+Last change: 2020-07-05
+
+==============================================================================
+
+
+CONTENTS                                                      *diapp-contents*
+
+	GENERAL INFORMATION  . . . . . . . . . . . |diapp-general-information|
+	GPRBUILD RELATED COMMANDS  . . . . . . . . |diapp-gprbuild|
+	CREDITS AND LICENSE  . . . . . . . . . . . |diapp-license|
+
+==============================================================================
+
+
+GENERAL INFORMATION                                *diapp-general-information*
+
+Disabling Diapp~
+                                                              *g:loaded_diapp*
+Set g:loaded_diapp to 1 in your |.vimrc| to disable entirely Diapp. >
+
+	:let g:loaded_diapp = 1
+<
+
+Diapp commands availability~
+                                                 *diapp-commands-availability*
+Diapp does not systematically refresh its user interface, based on the type of
+the file you are editing (see |filetype|). This implies that when trying to
+use the commands documented in this manual, you may experience error |E492|
+("not an editor command"). It means that Diapp has not defined the command you
+are trying to use because it's not useful at the moment. Editing another type
+of file may result in the command being defined.
+
+User interface refresh management~
+                                                  *g:diapp_min_refresh_period*
+If Vim has been compiled with the `+reltime` feature, then Diapp avoids
+refreshing the user interface repetitively for a given buffer, which could
+happen due to |autocommands| being triggered for multiple events (|BufEnter|,
+|FileType|). A period parameter is used, which defaults to 1.8s. Set
+g:diapp_min_refresh_period to a different value (in seconds) in your |.vimrc|
+if needed (but it shouldn't be needed).
+
+Diapp menus~
+                                                                 *diapp-menus*
+Diapp creates menus, available to users running a version of Vim with the
+|GUI| (and |menus| not hidden of course). The absence of a menu or menu item
+means that the associated command(s) are not available because they're not
+useful at the moment. A menu item may also be present but disabled (grayed),
+which means it's not useful at the moment. In this case, an informational text
+may appear instead of the normal menu item label to indicate why it's
+disabled.
+
+==============================================================================
+
+
+GPRBUILD RELATED COMMANDS                                     *diapp-gprbuild*
+
+                                                   *g:diapp_gprbuild_disabled*
+Set g:diapp_gprbuild_disabled to 1 in your |.vimrc| to disable the whole set
+of commands described in this section. >
+
+	:let g:diapp_gprbuild_disabled = 1
+<
+
+GNAT project file selection~
+
+Diapp automatically selects a GNAT project file (.gpr file) if it finds a
+"concrete" one that seems appropriate.
+
+Diapp starts searching in the current working directory. If a default.gpr file
+is found, then Diapp selects it as the GNAT project file. Otherwise, Diapp
+checks the other .gpr files (if any) and selects one of them based on the
+following rules:
+
+	Diapp does not select an abstract project (i.e. one that is defined
+	using the "abstract" reserved word).
+
+	Priority is given to files with a name ending with _test.gpr.
+
+If no GNAT project is selected after searching in the current working
+directory, then the same search is done in its parent directory. And so on, up
+to the root of the file system.
+
+                                           *g:diapp_gprbuild_default_gpr_file*
+You can force Diapp to automatically select a GNAT project file by setting
+g:diapp_gprbuild_default_gpr_file in your |.vimrc| file. >
+
+	:let g:diapp_gprbuild_default_gpr_file = path/to/the/gnat_project.gpr
+<
+
+:SelectCurGPRFile                                          *:SelectCurGPRFile*
+		Make the currently edited file the selected GNAT project file
+		(only if the currently edited file is a non abstract GNAT
+		project file).
+
+:SelectGPRFile {file}                                         *:SelectGPRFile*
+		Make file {file} the selected GNAT project (only if {file} is
+		a non abstract GNAT project file). >
+
+			:SelectGPRFile path/to/gnat_project_file.gpr
+<
+
+                                                                *:EchoGPRFile*
+:EchoGPRFile	Echo the name of the currently selected GNAT project file (if
+		any).
+
+:SetGPRbuildOpt {options}                                    *:SetGPRbuildOpt*
+		Define options to be used in GPRbuild commands. Options
+		provided in {options} are used in addition to options that
+		Diapp unconditionally passes to GPRbuild (see
+		`:GPRbuildCompileCurFile` for more details). Example: >
+
+			:SetGPRbuildOpt -eL -XBUILD=DEBUG
+<
+
+                                   *g:diapp_gprbuild_default_gprbuild_options*
+		By default, no options are defined (that is the state is the
+		same that after an invocation of `:ResetGPRbuildOpt`). Set
+		g:diapp_gprbuild_default_gprbuild_options in your |.vimrc| to
+		set options by default. Example: >
+
+			:let g:diapp_gprbuild_default_gprbuild_options
+				\ = "-eL -XBUILD=DEBUG"
+<
+
+:ResetGPRbuildOpt                                          *:ResetGPRbuildOpt*
+		Cancel the effect of any previous invocation(s) of
+		`:SetGPRbuildOpt`.
+
+:EchoGPRbuildOpt                                            *:EchoGPRbuildOpt*
+		Echo the options (if any) defined using `:SetGPRbuildOpt`.
+
+:GPRbuildCompileCurFile                              *:GPRbuildCompileCurFile*
+		Elaborate a GPRbuild command based on the currently edited
+		file and the currently selected GNAT project file (if any),
+		and run the command. Also, if any diagnostic message (error,
+		warning, ...) is issued by GPRbuild, populate the |quickfix|
+		list and open the |quickfix-window|.
+
+			If the currently edited file is not a GNAT project
+			file (.gpr file), then the GPRbuild command is made to
+			compile the currently edited file with the assumption
+			it belongs to the currently selected GNAT project
+			file. Binding or link edition is not attempted.
+			Switches -U ("compilation of file provided on the
+			command line") and -f ("forced recompilation") are
+			used, and also switch -gnatc ("syntax and semantic
+			check only") if the compiled file is an Ada
+			specification (.ads file).
+
+			If the currently edited file is a non abstract GNAT
+			project file, then the GPRbuild command is made to
+			build the project (binding and link edition included).
+
+			If the currently edited file is an abstract GNAT
+			project file, then nothing is done.
+
+		In all cases, the -p switch is used ("creation of missing
+		directories" (typically the object files and binary files
+		directories).
+
+		The other switches used are only to force the diagnostic
+		messages format (which is important to reliably populate the
+		|quickfix| list).
+
+		After the command execution, a line is saved to
+		|message-history| indicating the result of the command
+		("Passed" if it terminated with exit status 0 or "Failed" with
+		exit status value) and the count of diagnostic messages in the
+		|quickfix-window|.
+
+                                        *g:diapp_gprbuild_compile_cur_mapping*
+		`:GPRbuildCompileCurFile` is mapped by default to <F10>. Set
+		variable g:diapp_gprbuild_compile_cur_mapping in your |.vimrc|
+		to map the command to another key. Example with <F4>: >
+
+			:let g:diapp_gprbuild_compile_cur_mapping="<F4>"
+<
+
+==============================================================================
+
+                                                               *diapp-credits*
+CREDITS AND LICENSE                                            *diapp-license*
+
+The code of Diapp is by Thierry Rascle <thierr26@free.fr>.
+
+Diapp is released under the MIT license.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+==============================================================================
+
+vim:tw=78:ts=8:sts=8:noet:ft=help:norl:
