@@ -169,6 +169,8 @@ g:diapp_gprbuild_default_gpr_file in your |.vimrc| file. >
 		messages format (which is important to reliably populate the
 		|quickfix| list).
 
+		All changed buffers are written before executing the GPRbuild command.
+
 		After the command execution, a line is saved to
 		|message-history| indicating the result of the command
 		("Passed" if it terminated with exit status 0 or "Failed" with

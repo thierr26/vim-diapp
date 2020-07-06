@@ -288,9 +288,9 @@ endfunction
 
 " -----------------------------------------------------------------------------
 
-" Run a command, supposed to be an output of 's:GPRbuildShellCommand', populate
-" the quickfix list and open the quickfix window (or close it if there's no
-" diagnostic message to show).
+" Write all changed buffers, run a command, supposed to be an output of
+" 's:GPRbuildShellCommand', populate the quickfix list and open the quickfix
+" window (or close it if there's no diagnostic message to show).
 "
 " Argument #1:
 " Shell command, supposed to be an output of 's:GPRbuildShellCommand'.
@@ -299,6 +299,9 @@ endfunction
 " Quickfix window status line.
 
 function s:RunGPRbuildShellCommand(cmd, ...)
+
+    " Write all changed buffers.
+    wa
 
     echo "Running " . a:cmd
 
