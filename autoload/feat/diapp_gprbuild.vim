@@ -305,9 +305,6 @@ function s:RunGPRbuildShellCommand(cmd, ...)
     " Run the command, capture the output and turn it to a list of lines.
     let l:cmd_output = split(system(a:cmd), '\n')
 
-    " Get information about buffers.
-    let l:buf_dic_list = getbufinfo()
-
     let l:qflist = []
 
     " Loop over the lines.
@@ -383,8 +380,8 @@ function s:RunGPRbuildShellCommand(cmd, ...)
                     \ 'text'    : l:m,
                     \ 'type'    : l:type}
 
-        let l:buf_num = lib#diapp_vimbuf#FileExists(l:qfitem['filename'])
-        if l:buf_num != 0
+        let l:buf_num = bufnr(l:qfitem['filename'])
+        if l:buf_num != -1
             let l:qfitem['bufnr'] = l:buf_num
         endif
 
