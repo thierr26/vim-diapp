@@ -508,7 +508,6 @@ function s:DiappRefreshUI(...)
         let b:diapp_refresh_date = reltime()
     endif
 
-    echo "A"
     return 0
 
 endfunction
