@@ -261,11 +261,17 @@ function s:UpdateFeatureState(feat, current_state)
 
     endif
 
-    if l:s['disabled']
+    if l:s['disabled'] || !feat#diapp_gprbuild#CannotSkipUpdate()
+        " The feature is disabled or it is enabled but the edited file is such
+        " that the feature state dictionary update can be skipped.
+        let s:skipped_update[a:feat] = 1
         return l:s " Early return.
+    else
+        let s:skipped_update[a:feat] = 0
     endif
 
-    " We get there only if the feature is enabled.
+    " We get there only if the feature is enabled and the feature state
+    " dictionary update cannot be skipped.
 
     " Update the feature state dictionary.
     call feat#diapp_{a:feat}#UpdatedState(l:s)
@@ -287,6 +293,12 @@ endfunction
 " If argument (current state dictionary) is provided, return it updated.
 " Otherwise return an initial state dictionary.
 "
+" Also, manage script-local dictionary 's:skipped_update' (one item for each
+" feature). A truthy value for an item is a signal for 's:DiappRefreshUI' that
+" it should not update the user interface for the feature. A part of the
+" management of s:skipped_update is done by 's:UpdateFeatureState'. And a reset
+" is done by 's:DiappRefreshUI' (just before exiting).
+"
 " Argument #1 (optional):
 " Current state dictionary.
 "
@@ -300,6 +312,9 @@ function s:UpdatedState(...)
 
         " Initialize the return value with an embryonic initial state.
         let l:s = {'feat': {'gprbuild': {}}}
+
+        " Initialize s:skipped_update.
+        let s:skipped_update = {'gprbuild': 0}
     else
         " Current state dictionary provided as argument.
 
@@ -410,9 +425,6 @@ endfunction
 " - 1: The function has returned immediately due to the check of the
 "      elapsed time since last call for the same buffer.
 "
-" - 2: The function has returned immediately due to the buffer file type not
-"      being in a specific set.
-"
 " - 0: The function has run normally.
 
 function s:DiappRefreshUI(...)
@@ -456,15 +468,6 @@ function s:DiappRefreshUI(...)
         return 1 " Early return.
     endif
 
-    if &filetype !=? "ada"
-                \ && &filetype !=? "c"
-
-        " We choose to not waste time refreshing the user interface if the
-        " buffer file type is not in a specific set.
-
-        return 2 " Early return.
-    endif
-
     " From now on, there must be NO early return and NO abnormal function exit
     " (to make sure the 'b:diapp_refresh_date', 's:diapp_refresh_count' and
     " 'b:diapp_refresh_count' update is done at the end).
@@ -481,6 +484,7 @@ function s:DiappRefreshUI(...)
         " have a menu.
         for k in keys(s:state['feat'])
             if !s:state['feat'][k]['disabled']
+                        \ && !s:skipped_update[k]
                         \ && has_key(s:state['feat'][k], l:menu)
                 try
                     execute "aunmenu " . s:state['feat'][k][l:menu]['label']
@@ -496,10 +500,17 @@ function s:DiappRefreshUI(...)
     let l:com = diapp#FeatStateKeyCom()
     for k in keys(s:state['feat'])
         if !s:state['feat'][k]['disabled']
+                    \ && !s:skipped_update[k]
+                    \ && has_key(s:state['feat'][k], l:com)
             for comm in s:state['feat'][k][l:com]
                 execute "command! " . comm
             endfor
         endif
+    endfor
+
+    " Reset 's:skipped_update'.
+    for k in keys(s:state['feat'])
+        let s:skipped_update[k] = 0
     endfor
 
     " Update the run counts and refresh date if Vim has been compiled with the

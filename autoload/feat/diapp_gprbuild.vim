@@ -472,6 +472,24 @@ endfunction
 
 " -----------------------------------------------------------------------------
 
+" Return a truthy value if the edited file is such that the feature state
+" dictionary should be updated on a 'BufEnter' or 'FileType' event, return a
+" falsy value otherwise.
+"
+" Return value:
+" 0 or 1.
+
+function feat#diapp_gprbuild#CannotSkipUpdate()
+
+    return &filetype ==? "ada"
+                \ || &filetype ==? "c"
+                \ || &filetype ==? "cpp"
+                \ || &filetype ==? "fortran"
+
+endfunction
+
+" -----------------------------------------------------------------------------
+
 " Update the feature state dictionary. The 'disabled' item is never updated and
 " is assumed to be true. The 'active' item may have been modified.
 "
