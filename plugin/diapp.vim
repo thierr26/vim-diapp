@@ -271,7 +271,12 @@ function s:UpdateFeatureState(feat, current_state)
     call feat#diapp_{a:feat}#UpdatedState(l:s)
 
     " The 'disabled' item must not have been changed.
-    call assert_false(l:s['disabled'])
+    if l:s['disabled']
+        throw "Internal error: function 'feat#diapp_"
+                    \ . a:feat
+                    \ . "#UpdatedState' has changed the 'disabled' item of "
+                    \ . "the feature state dictionary"
+    endif
 
     return l:s
 
@@ -327,8 +332,10 @@ endfunction
 
 function s:CreateUIFeatureMenu(feat, ...)
 
-    " 0 or two optional arguments must be provided.
-    call assert_true(a:0 == 0 || a:0 == 2)
+    " 0 or 2 extra arguments must be provided.
+    if a:0 != 0 && a:0 != 2
+        throw "Internal error: 0 or 2 extra arguments expected"
+    endif
 
     if a:0 == 0
         " No optional argument is provided.
