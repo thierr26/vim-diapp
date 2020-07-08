@@ -589,7 +589,7 @@ function feat#diapp_gprbuild#UpdatedState(current_state)
     endif
 
     let l:cmd = ":call diapp#RunFeatureFuncAndRefreshUI('gprbuild', "
-                \ . "funcref('feat#diapp_gprbuild#SelectGPRFile'))"
+                \ . "function('feat#diapp_gprbuild#SelectGPRFile'))"
     let l:menu_item_use_cur_file_as_gpr
                 \ = {'label': l:lab,
                 \ 'mode': "n",
@@ -613,28 +613,28 @@ function feat#diapp_gprbuild#UpdatedState(current_state)
     let l:s[l:com] = l:s[l:com]
                 \ + ["-nargs=1 -complete=file SelectGPRFile "
                 \ . ":call diapp#RunFeatureFuncAndRefreshUI('gprbuild', "
-                \ . "funcref('feat#diapp_gprbuild#SelectGPRFile'), "
+                \ . "function('feat#diapp_gprbuild#SelectGPRFile'), "
                 \ . "<f-args>)"]
     let l:s[l:com] = l:s[l:com]
                 \ + ["-nargs=0 EchoGPRFile "
                 \ . ":call diapp#RunFeatureFunc('gprbuild', "
-                \ . "funcref('feat#diapp_gprbuild#EchoGPRFile'))"]
+                \ . "function('feat#diapp_gprbuild#EchoGPRFile'))"]
 
     " -----------------------------------------------------
 
     let l:s[l:com] = l:s[l:com]
                 \ + ["-nargs=1 SetGPRbuildOpt "
                 \ . ":call diapp#RunFeatureFunc('gprbuild', "
-                \ . "funcref('feat#diapp_gprbuild#SetGPRbuildOpt'), "
+                \ . "function('feat#diapp_gprbuild#SetGPRbuildOpt'), "
                 \ . "<f-args>)"]
     let l:s[l:com] = l:s[l:com]
                 \ + ["-nargs=0 ResetGPRbuildOpt "
                 \ . ":call diapp#RunFeatureFunc('gprbuild', "
-                \ . "funcref('feat#diapp_gprbuild#ResetGPRbuildOpt'))"]
+                \ . "function('feat#diapp_gprbuild#ResetGPRbuildOpt'))"]
     let l:s[l:com] = l:s[l:com]
                 \ + ["-nargs=0 EchoGPRbuildOpt "
                 \ . ":call diapp#RunFeatureFunc('gprbuild', "
-                \ . "funcref('feat#diapp_gprbuild#EchoGPRbuildOpt'))"]
+                \ . "function('feat#diapp_gprbuild#EchoGPRbuildOpt'))"]
 
     " -----------------------------------------------------
 
@@ -657,7 +657,7 @@ function feat#diapp_gprbuild#UpdatedState(current_state)
         if l:valid_gpr_candidate
             let l:s[l:com][-1] = l:s[l:com][-1]
                         \ . ":call diapp#RunFeatureFunc('gprbuild', "
-                        \ . "funcref('feat#diapp_gprbuild#BuildCurGNATProj'))"
+                        \ . "function('feat#diapp_gprbuild#BuildCurGNATProj'))"
             let l:ena = 1
             let l:lab = s:EscapeUIString("&Build " . s:FileNameForUI())
         else
@@ -682,7 +682,7 @@ function feat#diapp_gprbuild#UpdatedState(current_state)
         else
             let l:s[l:com][-1] = l:s[l:com][-1]
                         \ . ":call diapp#RunFeatureFunc('gprbuild', "
-                        \ . "funcref('feat#diapp_gprbuild#CompileCurFile'))"
+                        \ . "function('feat#diapp_gprbuild#CompileCurFile'))"
             let l:ena = 1
             let l:lab = s:EscapeUIString("&Compile " . s:FileNameForUI())
         endif
