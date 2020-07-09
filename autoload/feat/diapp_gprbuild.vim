@@ -77,6 +77,7 @@ function s:GuessedGPRFile(...)
     let l:ret = ""
     let l:old_dir = ""
 
+    let l:done = 0
     while l:old_dir !=# l:dir
 
         let l:old_dir = l:dir
@@ -85,7 +86,7 @@ function s:GuessedGPRFile(...)
         let l:candidate = l:dir . "/" . l:default_gpr
         if lib#diapp_file#FileExists(l:candidate)
             let l:ret = lib#diapp_file#Relative(l:candidate)
-            break " Early loop exit.
+            break " Early loop exit (while loop).
         else
             for k in l:filter
                 let l:f = l:dir . "/" . k
@@ -95,11 +96,18 @@ function s:GuessedGPRFile(...)
                         let l:f_i = lib#diapp_ada#FileInfo(gpr)
                         if !l:f_i['abstract']
                             let l:ret = gpr
-                            break " Early loop exit.
+                            let l:done = 1
+                            break " Early loop exit (innermost for loop).
                         endif
                     endif
                 endfor
+                if l:done
+                    break " Early loop exit (for loop).
+                endif
             endfor
+            if l:done
+                break " Early loop exit (while loop).
+            endif
         endif
 
     endwhile
