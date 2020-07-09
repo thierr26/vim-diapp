@@ -92,7 +92,7 @@ function s:GuessedGPRFile(...)
                 let l:gpr_list = split(glob(l:f, '\n'))
                 for gpr in l:gpr_list
                     if lib#diapp_file#FileExists(gpr)
-                        let l:f_i = lib#diapp_ada#file_info(gpr)
+                        let l:f_i = lib#diapp_ada#FileInfo(gpr)
                         if !l:f_i['abstract']
                             let l:ret = gpr
                             break " Early loop exit.
@@ -211,7 +211,7 @@ function feat#diapp_gprbuild#SelectGPRFile(current_state, ...)
     if a:0 == 0
         let a:current_state['gnat_project'] = s:FileNameForUI()
     else
-        let l:f_i = lib#diapp_ada#file_info(a:1)
+        let l:f_i = lib#diapp_ada#FileInfo(a:1)
         if lib#diapp_ada#IsConcreteGNATProject(l:f_i)
             let a:current_state['gnat_project'] = s:FileNameForUI(a:1)
         elseif l:f_i['kind'] !=? 'gnat_project'
@@ -486,10 +486,10 @@ function feat#diapp_gprbuild#UpdatedState(current_state)
     endif
 
     if !has_key(l:s, 'gnat_project')
-        let l:s['gnat_project'] = diapp#get_feat_opt(
+        let l:s['gnat_project'] = diapp#GetFeatOpt(
                     \ 'gprbuild', l:s, 'default_gpr_file', '')
         " Not using 's:GuessedGPRFile()' as third argument to
-        " 'diapp#get_feat_opt' but only when actually needed probably speeds up
+        " 'diapp#GetFeatOpt' but only when actually needed probably speeds up
         " the function.
         if empty(l:s['gnat_project'])
             let l:s['gnat_project'] = s:GuessedGPRFile()
@@ -497,7 +497,7 @@ function feat#diapp_gprbuild#UpdatedState(current_state)
     endif
 
     if !has_key(l:s, 'gprbuild_opt')
-        let l:s['gprbuild_opt'] = diapp#get_feat_opt(
+        let l:s['gprbuild_opt'] = diapp#GetFeatOpt(
                     \ 'gprbuild', l:s, 'default_gprbuild_options', '')
     endif
 
@@ -511,7 +511,7 @@ function feat#diapp_gprbuild#UpdatedState(current_state)
     let l:s[l:menu] = {'label': "&GPRbuild", 'sub': []}
 
     let l:gpr_candidate = s:FileNameForUI()
-    let l:ada_file_info = lib#diapp_ada#file_info(l:gpr_candidate)
+    let l:ada_file_info = lib#diapp_ada#FileInfo(l:gpr_candidate)
 
     " -----------------------------------------------------
 
@@ -688,7 +688,7 @@ function feat#diapp_gprbuild#UpdatedState(current_state)
         endif
     endif
 
-    let l:map = diapp#get_feat_opt(
+    let l:map = diapp#GetFeatOpt(
                 \ 'gprbuild', l:s, 'compile_cur_mapping', '<F10>')
     let l:cmd = ":GPRbuildCompileCurFile<CR>"
     let l:menu_item_compile_cur_file

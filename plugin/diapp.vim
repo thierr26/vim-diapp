@@ -29,7 +29,7 @@ let s:default_min_refresh_period = 1.8 " seconds.
 " Return value:
 " Can be anything.
 
-function s:get(identifier, default)
+function s:Get(identifier, default)
 
     return exists(a:identifier) ? {a:identifier} : a:default
 
@@ -56,9 +56,9 @@ endfunction
 " Return value:
 " 0 or 1.
 
-function s:get_flag(identifier, ...)
+function s:GetFlag(identifier, ...)
 
-    return s:get(a:identifier, get(a:, 1, 0)) ? 1 : 0
+    return s:Get(a:identifier, get(a:, 1, 0)) ? 1 : 0
 
 endfunction
 
@@ -89,7 +89,7 @@ endfunction
 "
 " Return value: Can be anything.
 
-function diapp#get_feat_opt(feat, current_state, id, default)
+function diapp#GetFeatOpt(feat, current_state, id, default)
 
     let l:identifier = "g:diapp_" . a:feat . "_" . a:id
     let l:desired_value = exists(l:identifier) ? {l:identifier} : a:default
@@ -227,7 +227,7 @@ function s:UpdateFeatureState(feat, current_state)
     " Compute the desired 'disabled' item value based on a user defined global
     " flag (if existent).
     let l:user_desired_disabled_item
-                \ = s:get_flag('g:diapp_' . a:feat . '_disabled')
+                \ = s:GetFlag('g:diapp_' . a:feat . '_disabled')
 
     if l:initializing
 
@@ -450,7 +450,7 @@ function s:DiappRefreshUI(...)
                 \ && b:diapp_refresh_count == s:diapp_refresh_count
                 \ && exists('b:diapp_refresh_date')
                 \ && reltimefloat(reltime(b:diapp_refresh_date))
-                \ < s:get('g:diapp_min_refresh_period',
+                \ < s:Get('g:diapp_min_refresh_period',
                 \ s:default_min_refresh_period)
         return 1 " Early return.
     endif

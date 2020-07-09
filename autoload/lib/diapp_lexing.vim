@@ -14,7 +14,7 @@ set cpo&vim
 " 'text' argument).
 "
 " Note that a similar function exists to change lexer state to the beginning of
-" the next non empty line: 'lib#diapp_lexing#move_to_next_line'. You can call
+" the next non empty line: 'lib#diapp_lexing#MoveToNextLine'. You can call
 " any of the functions with the returned value of any of them.
 "
 " Argument #1:
@@ -23,7 +23,7 @@ set cpo&vim
 "
 " Argument #2:
 " Empty dictionary or return value of a previous call (or of a call to
-" 'lib#diapp_lexing#move_to_next_line') with same first argument.
+" 'lib#diapp_lexing#MoveToNextLine') with same first argument.
 "
 " Return value:
 " Lexer state, that is a dictionary with the following items:
@@ -38,7 +38,7 @@ set cpo&vim
 " - 'd': "done" flag (truthy if the 'state' argument was "pointing" to the last
 "        character of the last non empty line of argument 'text' or if argument
 "        'text' has no non empty lines).
-function lib#diapp_lexing#move_to_next_char(text, state)
+function lib#diapp_lexing#MoveToNextChar(text, state)
 
     " Copy the provided state to 'l:s'. 'l:s' will be updated by the function
     " and returned.
@@ -109,7 +109,7 @@ endfunction
 " -----------------------------------------------------------------------------
 
 " Update lexer state with a move to the beginning of the next non empty line.
-" Otherwise similar to 'lib#diapp_lexing#move_to_next_char'.
+" Otherwise similar to 'lib#diapp_lexing#MoveToNextChar'.
 "
 " Argument #1:
 " List of (possibly empty) strings (as returned, for example, by Vim function
@@ -117,14 +117,14 @@ endfunction
 "
 " Argument #2:
 " Empty dictionary or return value of a previous call (or of a call to
-" 'lib#diapp_lexing#move_to_next_char') with same first argument.
+" 'lib#diapp_lexing#MoveToNextChar') with same first argument.
 "
 " Return value:
-" Lexer state. See documentation for 'lib#diapp_lexing#move_to_next_char' for
+" Lexer state. See documentation for 'lib#diapp_lexing#MoveToNextChar' for
 " details.
-function lib#diapp_lexing#move_to_next_line(text, state)
+function lib#diapp_lexing#MoveToNextLine(text, state)
 
-    let l:s = lib#diapp_lexing#move_to_next_char(a:text, a:state)
+    let l:s = lib#diapp_lexing#MoveToNextChar(a:text, a:state)
 
     if l:s['m']['l'] == 0 && l:s['m']['c'] == 1
         " The "move to next char" operation has moved to next character.
@@ -135,7 +135,7 @@ function lib#diapp_lexing#move_to_next_line(text, state)
 
         " Do another "move to next char" operation. It will move to the next
         " non empty line if any. Return immediately.
-        return lib#diapp_lexing#move_to_next_char(a:text, l:s)
+        return lib#diapp_lexing#MoveToNextChar(a:text, l:s)
     endif
 
     " We get there if and only if the first "move to next char" operation has
@@ -145,7 +145,7 @@ function lib#diapp_lexing#move_to_next_line(text, state)
     return l:s
 
     " NOTE: This implementation is probably a bit slow as in many cases it will
-    " call 'lib#diapp_lexing#move_to_next_char' twice. But it is short and
+    " call 'lib#diapp_lexing#MoveToNextChar' twice. But it is short and
     " avoids duplicating the state initialization code. <2020-06-13>
 
 endfunction

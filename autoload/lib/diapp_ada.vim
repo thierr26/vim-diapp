@@ -17,7 +17,7 @@ set cpo&vim
 " Return value:
 " List of lower case words.
 
-function s:reserved_word(...)
+function s:ReservedWord(...)
 
     let l:kind = get(a:, 1, "body")
 
@@ -120,7 +120,7 @@ endfunction
 " Truthy value if the argument is a (non-compound) Ada delimiter or an opening
 " or closing square bracket ("[" or "]"), falsy value otherwise.
 
-function s:is_delimiter(char)
+function s:IsDelimiter(char)
 
     " NOTE: '=~' or '!~' should probably have been used instead of 'match()' in
     " the whole file. No functional impact. <2020-06-27>
@@ -160,7 +160,7 @@ endfunction
 "
 " Return value:
 " Lexer state (similar to the one returned by
-" 'lib#diapp_lexing#move_to_next_char' but with more items), that is a
+" 'lib#diapp_lexing#MoveToNextChar' but with more items), that is a
 " dictionary with the following items:
 "
 " - 'l'         : line number (1 based).
@@ -179,13 +179,13 @@ endfunction
 " - 'token_name': "kind" of lexeme (one of "string_literal",
 "                 "character_literal", "numeric_literal", "delimiter",
 "                 "identifier" and "reserved_word")
-function s:move_to_lexeme_tail(text, state, ...)
+function s:MoveToLexemeTail(text, state, ...)
 
     let l:kind = get(a:, 1, "body")
 
-    let l:reserved_word = s:reserved_word(l:kind)
+    let l:reserved_word = s:ReservedWord(l:kind)
 
-    let l:s = lib#diapp_lexing#move_to_next_char(a:text, a:state)
+    let l:s = lib#diapp_lexing#MoveToNextChar(a:text, a:state)
 
     let l:blank_regexp = "[\t ]"
 
@@ -201,7 +201,7 @@ function s:move_to_lexeme_tail(text, state, ...)
 
         while (!has_key(l:s, 'd') || !l:s['d'])
                     \ && match(l:s['e'], l:blank_regexp) != -1
-            let l:s = lib#diapp_lexing#move_to_next_char(a:text, l:s)
+            let l:s = lib#diapp_lexing#MoveToNextChar(a:text, l:s)
         endwhile
 
         if l:s['d']
@@ -216,12 +216,12 @@ function s:move_to_lexeme_tail(text, state, ...)
         " If the lexeme is a comment, skip it.
         let l:is_comment = 0
         if l:s['e'] == '-'
-            let l:test_s = lib#diapp_lexing#move_to_next_char(a:text, l:s)
+            let l:test_s = lib#diapp_lexing#MoveToNextChar(a:text, l:s)
             if !l:test_s['d']
                         \ && l:test_s['l'] == l:s['l']
                         \ && l:test_s['e'] == "-"
                 let l:is_comment = 1
-                let l:s = lib#diapp_lexing#move_to_next_line(a:text, l:s)
+                let l:s = lib#diapp_lexing#MoveToNextLine(a:text, l:s)
             endif
         endif
     endwhile
@@ -249,7 +249,7 @@ function s:move_to_lexeme_tail(text, state, ...)
                         \ && l:cur_char != "\""
 
                 let l:old_s = deepcopy(l:s)
-                let l:s = lib#diapp_lexing#move_to_next_char(a:text, l:s)
+                let l:s = lib#diapp_lexing#MoveToNextChar(a:text, l:s)
                 let l:cur_char = l:s['e']
 
             endwhile
@@ -268,7 +268,7 @@ function s:move_to_lexeme_tail(text, state, ...)
                 " string literal (if it is not immediately followed by another
                 " double quote character) or not (in the opposite case).
 
-                let l:test_s = lib#diapp_lexing#move_to_next_char(a:text, l:s)
+                let l:test_s = lib#diapp_lexing#MoveToNextChar(a:text, l:s)
                 if l:test_s['d']
                             \ || l:test_s['l'] != l:l
                             \ || l:test_s['e'] != "\""
@@ -283,13 +283,13 @@ function s:move_to_lexeme_tail(text, state, ...)
                 \ && l:s['c'] <= strchars(a:text[l:l - 1]) - 2
                 \ && strcharpart(a:text[l:l - 1], l:s['c'] + 1, 1) == "'"
         " The lexeme is a character literal.
-        let l:s = lib#diapp_lexing#move_to_next_char(a:text, l:s)
-        let l:s = lib#diapp_lexing#move_to_next_char(a:text, l:s)
+        let l:s = lib#diapp_lexing#MoveToNextChar(a:text, l:s)
+        let l:s = lib#diapp_lexing#MoveToNextChar(a:text, l:s)
         let l:token_name = "character_literal"
-    elseif s:is_delimiter(l:s['e'])
+    elseif s:IsDelimiter(l:s['e'])
         " The lexeme is a delimiter.
         let l:old_s = deepcopy(l:s)
-        let l:s = lib#diapp_lexing#move_to_next_char(a:text, l:s)
+        let l:s = lib#diapp_lexing#MoveToNextChar(a:text, l:s)
         if !l:s['d'] && l:s['l'] == l:l
             let l:compound_candidate = l:old_s['e'].l:s['e']
             if l:compound_candidate != "=>"
@@ -320,7 +320,7 @@ function s:move_to_lexeme_tail(text, state, ...)
                     \ || (match(l:s['e'], "[+-]") != -1
                     \ && match(l:old_s['e'], "[eE]") != -1))
             let l:old_s = deepcopy(l:s)
-            let l:s = lib#diapp_lexing#move_to_next_char(a:text, l:s)
+            let l:s = lib#diapp_lexing#MoveToNextChar(a:text, l:s)
         endwhile
         let l:s = deepcopy(l:old_s)
         let l:token_name = "numerical_literal"
@@ -328,10 +328,10 @@ function s:move_to_lexeme_tail(text, state, ...)
         " The lexeme is an identifier or a reserved word.
         while !l:s['d']
                     \ && l:s['l'] == l:l
-                    \ && !s:is_delimiter(l:s['e'])
+                    \ && !s:IsDelimiter(l:s['e'])
                     \ && match(l:s['e'], l:blank_regexp) == -1
             let l:old_s = deepcopy(l:s)
-            let l:s = lib#diapp_lexing#move_to_next_char(a:text, l:s)
+            let l:s = lib#diapp_lexing#MoveToNextChar(a:text, l:s)
         endwhile
         let l:s = deepcopy(l:old_s)
         let l:token_name = "identifier"
@@ -463,7 +463,7 @@ endfunction
 " Return value:
 " Dictionary.
 
-function lib#diapp_ada#file_info(file_name)
+function lib#diapp_ada#FileInfo(file_name)
 
     let l:ext = "." . lib#diapp_file#Ext(a:file_name)
 
@@ -494,7 +494,7 @@ function lib#diapp_ada#file_info(file_name)
         let l:lexer_state = {}
         while !has_key(l:lexer_state, 'd') || !l:lexer_state['d']
 
-            let l:lexer_state = s:move_to_lexeme_tail(
+            let l:lexer_state = s:MoveToLexemeTail(
                         \ l:gpr_text, l:lexer_state, l:ret['kind'])
 
             if l:lexer_state['lexeme'] ==? "project"
@@ -537,11 +537,11 @@ endfunction
 " -----------------------------------------------------------------------------
 
 " Return a truthy value if the provided dictionary (supposed to have been
-" returned by 'lib#diapp_ada#file_info') seems to be the one of a concrete
+" returned by 'lib#diapp_ada#FileInfo') seems to be the one of a concrete
 " (i.e. not abstract) GNAT project file and a falsy value otherwise.
 "
 " Argument #1:
-" Dictionary as output by 'lib#diapp_ada#file_info'.
+" Dictionary as output by 'lib#diapp_ada#FileInfo'.
 "
 " Return value:
 " Truthy for a concrete (i.e. not abstract) GNAT project file, falsy otherwise.
