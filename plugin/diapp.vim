@@ -449,7 +449,8 @@ function s:DiappRefreshUI(...)
                 \ && exists('b:diapp_refresh_count')
                 \ && b:diapp_refresh_count == s:diapp_refresh_count
                 \ && exists('b:diapp_refresh_date')
-                \ && reltimefloat(reltime(b:diapp_refresh_date))
+                \ && lib#diapp_vim800func#RelTimeFloat(
+                \ reltime(b:diapp_refresh_date))
                 \ < s:Get('g:diapp_min_refresh_period',
                 \ s:default_min_refresh_period)
         return 1 " Early return.

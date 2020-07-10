@@ -100,7 +100,8 @@ function lib#diapp_lexing#MoveToNextChar(text, state)
     endif
 
     " Update the current character key of the state.
-    let l:s['e'] = strcharpart(a:text[l:s['l'] - 1], l:s['c'] - 1, 1)
+    let l:s['e'] = lib#diapp_vim800func#StrCharPart(
+                \ a:text[l:s['l'] - 1], l:s['c'] - 1, 1)
 
     return l:s
 

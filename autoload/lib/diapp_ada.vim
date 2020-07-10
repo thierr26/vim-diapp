@@ -281,7 +281,8 @@ function s:MoveToLexemeTail(text, state, ...)
     elseif l:s['e'] == "'"
                 \ && match(a:state['e'], "[A-Za-z0-9]") == -1
                 \ && l:s['c'] <= strchars(a:text[l:l - 1]) - 2
-                \ && strcharpart(a:text[l:l - 1], l:s['c'] + 1, 1) == "'"
+                \ && lib#diapp_vim800func#StrCharPart(
+                \ a:text[l:l - 1], l:s['c'] + 1, 1) == "'"
         " The lexeme is a character literal.
         let l:s = lib#diapp_lexing#MoveToNextChar(a:text, l:s)
         let l:s = lib#diapp_lexing#MoveToNextChar(a:text, l:s)
@@ -338,7 +339,7 @@ function s:MoveToLexemeTail(text, state, ...)
     endif
 
     " Add a 'lexeme' item to the returned dictionary.
-    let l:s['lexeme'] = strcharpart(
+    let l:s['lexeme'] = lib#diapp_vim800func#StrCharPart(
                 \ a:text[l:l - 1], l:c - 1, l:s['c'] + 1 - l:c) . l:fix_tail
 
     " Add the lexeme location (keys 'lexeme_l' (line) and 'lexeme_c' (column))
