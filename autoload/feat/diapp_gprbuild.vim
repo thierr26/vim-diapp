@@ -187,8 +187,8 @@ function s:GPRbuildShellCommand(current_state, gpr, ...)
 
         let l:ret = l:ret . " -U -f"
 
-        if a:1 =~? "\.ads$"
-            " The source file is a .ads file.
+        if a:1 =~? escape(lib#diapp_ada#Ext("spec"), '.') . "$"
+            " The source file is an Ada specification.
 
             let l:ret = l:ret . " -gnatc"
         endif
