@@ -314,7 +314,7 @@ function s:RunGPRbuildShellCommand(cmd, ...)
     echo "Running " . a:cmd
 
     " Run the command, capture the output and turn it to a list of lines.
-    let l:cmd_output = split(system(a:cmd), '\n')
+    let l:cmd_output = lib#diapp_vim800func#SystemList(a:cmd)
 
     let l:qflist = []
 
