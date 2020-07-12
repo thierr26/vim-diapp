@@ -7,21 +7,14 @@ set cpo&vim
 " -----------------------------------------------------------------------------
 
 " List of Ada 202x reserved words (i.e. Ada 2012 reserved words plus
-" "parallel") plus "aggregate", "extends", "external", "library" and "project"
-" if an argument is provided and is equal to "gnat_project" (case insensitive).
-"
-" Argument #1 (optional):
-" Kind of Ada file ("spec", "body" or "gnat_project") (case insensitive,
-" defaults to "body").
+" "parallel").
 "
 " Return value:
 " List of lower case words.
 
-function s:ReservedWord(...)
+function lib#diapp_ada#ReservedWord()
 
-    let l:kind = get(a:, 1, "body")
-
-    let l:ret = ['abort',
+    return ['abort',
                 \ 'abs',
                 \ 'abstract',
                 \ 'accept',
@@ -96,16 +89,6 @@ function s:ReservedWord(...)
                 \ 'with',
                 \ 'xor']
 
-    if l:kind ==? "gnat_project"
-        let l:ret = l:ret + ['aggregate',
-                    \ 'extends',
-                    \ 'external',
-                    \ 'library',
-                    \ 'project']
-    endif
-
-    return l:ret
-
 endfunction
 
 " -----------------------------------------------------------------------------
@@ -155,8 +138,12 @@ endfunction
 " Empty dictionary or return value of a previous call with same first argument.
 "
 " Argument #3 (optional):
-" Kind of Ada file ("spec", "body" or "gnat_project") (case insensitive,
-" defaults to "body").
+" Reserved words list. Defaults to the return value of
+" 'lib#diapp_ada#ReservedWord'. It is useful to be able to specify a specific
+" list of reserved words as some files (e.g. GNAT project files) may use a
+" language "like" Ada but with more reserved words. In this case, using the
+" standard list of ada reserved words would lead some reserved words to be
+" described as identifiers in the returned dictionary (item 'token_name').
 "
 " Return value:
 " Lexer state (similar to the one returned by
@@ -179,11 +166,9 @@ endfunction
 " - 'token_name': "kind" of lexeme (one of "string_literal",
 "                 "character_literal", "numeric_literal", "delimiter",
 "                 "identifier" and "reserved_word")
-function s:MoveToLexemeTail(text, state, ...)
+function lib#diapp_ada#MoveToLexemeTail(text, state, ...)
 
-    let l:kind = get(a:, 1, "body")
-
-    let l:reserved_word = s:ReservedWord(l:kind)
+    let l:reserved_word = get(a:, 1, lib#diapp_ada#ReservedWord())
 
     let l:s = lib#diapp_lexing#MoveToNextChar(a:text, a:state)
 
@@ -363,194 +348,6 @@ function s:MoveToLexemeTail(text, state, ...)
     let l:s['token_name'] = l:token_name
 
     return l:s
-
-endfunction
-
-" -----------------------------------------------------------------------------
-
-" Extension of Ada files (".ads" for specifications, ".adb" for bodies and
-" ".gpr" for GNAT project files).
-"
-" Argument #1:
-" Kind of Ada file (one of "spec", "body" or "gnat_project") (case
-" insensitive).
-"
-" Return value:
-" Conventional extension for the kind of file, dot included.
-
-function lib#diapp_ada#Ext(kind)
-
-    if a:kind ==? 'spec'
-        return ".ads"
-    elseif a:kind ==? 'body'
-        return ".adb"
-    else " Could have been: elseif a:kind ==? 'gnat_project'
-        return ".gpr"
-    endif
-
-endfunction
-
-" -----------------------------------------------------------------------------
-
-" Convert an Ada source file name (.ads or .adb file) to the associated Ada
-" unit name (with "keywords" capitalized). For example, "src/my-great_unit.ads"
-" is converted to "My.Great_Unit".
-"
-" Argument #1:
-" Absolute or relative Ada source file name.
-"
-" Return value:
-" Ada unit name.
-
-function s:AdaUnitName(file_name)
-
-    let l:ret = ""
-
-    let l:hierarchical_unit
-                \ = split(lib#diapp_file#BaseNameNoExt(a:file_name), "-")
-
-    for h in l:hierarchical_unit
-
-        let l:keyword = split(h, "_")
-
-        for k in l:keyword
-            let l:ret .= substitute(k, '\(.\)', '\u\1', '') . '_'
-        endfor
-        let l:ret = substitute(l:ret, '_$', '\.', '')
-
-    endfor
-    let l:ret = substitute(l:ret, '\.$', '', '')
-
-    return l:ret
-
-    " REF: https://docs.adacore.com/gnat_ugn-docs/html/gnat_ugn/gnat_ugn/the_gnat_compilation_model.html#file-naming-rules
-    " <2020-06-07>
-
-    " FIXME: Make the function fully aware of the GNAT Ada file naming rules.
-    " In some cases, a tilde character ("~") may be used instead of an hyphen
-    " character ("-") to separate the two first hierarchical unit levels.
-    " <2020-06-15>
-
-    " IDEA: Make case conversion configurable, as the user may want some
-    " "keywords" fully converted to upper case (e.g. "IO" in "Text_IO").
-    " <2020-06-07>
-
-endfunction
-
-" -----------------------------------------------------------------------------
-
-" Return a dictionary containing various information about the Ada source file
-" or project file provided as argument.
-"
-" The returned dictionary has at least a 'kind' item, with one of the following
-" values:
-"
-" - ''            : the file is of an unrecognized kind of Ada file or is not
-"                   an Ada file.
-" - 'spec'        : the file is an Ada specification.
-" - 'body'        : the file is an Ada body.
-" - 'gnat_project': the file is a GNAT project file.
-"
-" If the value for the 'kind' item is 'gnat_project', then the dictionary also
-" has the following items:
-"
-" - 'abstract' : 1 if the project is an abstract project, 0 otherwise.
-" - 'aggregate': 1 if the project is an aggregate project, 0 otherwise.
-" - 'library'  : 1 if the project is a library project, 0 otherwise.
-"
-" Argument #1:
-" Absolute or relative file name.
-"
-" Return value:
-" Dictionary.
-
-function lib#diapp_ada#FileInfo(file_name)
-
-    let l:ext = "." . lib#diapp_file#Ext(a:file_name)
-
-    if l:ext ==? lib#diapp_ada#Ext('spec')
-        let l:ret = {'kind': 'spec'}
-    elseif l:ext ==? lib#diapp_ada#Ext('body')
-        let l:ret = {'kind': 'body'}
-    elseif l:ext ==? lib#diapp_ada#Ext('gnat_project')
-        let l:ret = {'kind': 'gnat_project',
-                    \ 'abstract': 0,
-                    \ 'aggregate': 0,
-                    \ 'library': 0}
-    else
-        let l:ret = {'kind': ''}
-        return l:ret " Early return.
-    endif
-
-    if l:ret['kind'] ==? 'gnat_project'
-                \ && lib#diapp_file#FileExists(a:file_name)
-        " The file is an existing GNAT project file.
-
-        " Load the file as a list of strings (lines).
-        let l:gpr_text = readfile(a:file_name)
-
-        " Extract lexemes until finding the project keyword and update the
-        " returned dictionary items according to the found reserved words.
-        let l:lexeme = []
-        let l:lexer_state = {}
-        while !has_key(l:lexer_state, 'd') || !l:lexer_state['d']
-
-            let l:lexer_state = s:MoveToLexemeTail(
-                        \ l:gpr_text, l:lexer_state, l:ret['kind'])
-
-            if l:lexer_state['lexeme'] ==? "project"
-                " The lexeme is the 'project' reserved word.
-
-                " Loop over the lexeme seen just before the 'project' reserved
-                " word and update the returned dictionary items accordingly.
-                for k in l:lexeme
-                    if k ==? "abstract"
-                        let l:ret['abstract'] = 1
-                    elseif k ==? "aggregate"
-                        let l:ret['aggregate'] = 1
-                    elseif k ==? "library"
-                        let l:ret['library'] = 1
-                    endif
-                endfor
-                break " Early loop exit.
-            elseif l:lexer_state['lexeme'] == ";"
-                " The lexeme is a semicolon, probably terminating a with
-                " clause.
-
-                " Reset the lexeme list as we are not interested in the with
-                " clause lexeme.
-                let l:lexeme = []
-            else
-                " The lexeme is neither a semicolon nor the 'project' reserved
-                " word.
-
-                " Append the lexeme to the lexeme list.
-                let l:lexeme = l:lexeme + [l:lexer_state['lexeme']]
-            endif
-         endwhile
-
-    endif
-
-    return l:ret
-
-endfunction
-
-" -----------------------------------------------------------------------------
-
-" Return a truthy value if the provided dictionary (supposed to have been
-" returned by 'lib#diapp_ada#FileInfo') seems to be the one of a concrete
-" (i.e. not abstract) GNAT project file and a falsy value otherwise.
-"
-" Argument #1:
-" Dictionary as output by 'lib#diapp_ada#FileInfo'.
-"
-" Return value:
-" Truthy for a concrete (i.e. not abstract) GNAT project file, falsy otherwise.
-
-function lib#diapp_ada#IsConcreteGNATProject(file_info_dic)
-
-    return a:file_info_dic['kind'] ==? 'gnat_project'
-                \ && !a:file_info_dic['abstract']
 
 endfunction
 

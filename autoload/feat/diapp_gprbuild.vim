@@ -40,6 +40,190 @@ endfunction
 
 " -----------------------------------------------------------------------------
 
+" List of Ada reserved as returned by 'lib#diapp_ada#ReservedWord' with GNAT
+" project file specific reserved words appended ("aggregate", "extends",
+" "external", "library" and "project").
+"
+" Return value:
+" List of lower case words.
+
+function s:ReservedWord()
+
+    return lib#diapp_ada#ReservedWord()
+                \ + ['aggregate',
+                \ 'extends',
+                \ 'external',
+                \ 'library',
+                \ 'project']
+
+endfunction
+
+" -----------------------------------------------------------------------------
+
+" Convert an Ada source file name (.ads or .adb file) to the associated Ada
+" unit name (with "keywords" capitalized). For example, "src/my-great_unit.ads"
+" is converted to "My.Great_Unit".
+"
+" Argument #1:
+" Absolute or relative Ada source file name.
+"
+" Return value:
+" Ada unit name.
+
+function s:AdaUnitName(file_name)
+
+    let l:ret = ""
+
+    let l:hierarchical_unit
+                \ = split(lib#diapp_file#BaseNameNoExt(a:file_name), "-")
+
+    for h in l:hierarchical_unit
+
+        let l:keyword = split(h, "_")
+
+        for k in l:keyword
+            let l:ret .= substitute(k, '\(.\)', '\u\1', '') . '_'
+        endfor
+        let l:ret = substitute(l:ret, '_$', '\.', '')
+
+    endfor
+    let l:ret = substitute(l:ret, '\.$', '', '')
+
+    return l:ret
+
+    " REF: https://docs.adacore.com/gnat_ugn-docs/html/gnat_ugn/gnat_ugn/the_gnat_compilation_model.html#file-naming-rules
+    " <2020-06-07>
+
+    " FIXME: Make the function fully aware of the GNAT Ada file naming rules.
+    " In some cases, a tilde character ("~") may be used instead of an hyphen
+    " character ("-") to separate the two first hierarchical unit levels.
+    " <2020-06-15>
+
+    " IDEA: Make case conversion configurable, as the user may want some
+    " "keywords" fully converted to upper case (e.g. "IO" in "Text_IO").
+    " <2020-06-07>
+
+endfunction
+
+" -----------------------------------------------------------------------------
+
+" Return a dictionary containing various information about the Ada source file
+" or project file provided as argument.
+"
+" The returned dictionary has at least a 'kind' item, with one of the following
+" values:
+"
+" - ''            : the file is of an unrecognized kind of Ada file or is not
+"                   an Ada file.
+" - 'spec'        : the file is an Ada specification.
+" - 'body'        : the file is an Ada body.
+" - 'gnat_project': the file is a GNAT project file.
+"
+" If the value for the 'kind' item is 'gnat_project', then the dictionary also
+" has the following items:
+"
+" - 'abstract' : 1 if the project is an abstract project, 0 otherwise.
+" - 'aggregate': 1 if the project is an aggregate project, 0 otherwise.
+" - 'library'  : 1 if the project is a library project, 0 otherwise.
+"
+" Argument #1:
+" Absolute or relative file name.
+"
+" Return value:
+" Dictionary.
+
+function s:FileInfo(file_name)
+
+    let l:ext = "." . lib#diapp_file#Ext(a:file_name)
+
+    if l:ext ==? ".ads"
+        let l:ret = {'kind': 'spec'}
+    elseif l:ext ==? ".adb"
+        let l:ret = {'kind': 'body'}
+    elseif l:ext ==? ".gpr"
+        let l:ret = {'kind': 'gnat_project',
+                    \ 'abstract': 0,
+                    \ 'aggregate': 0,
+                    \ 'library': 0}
+    else
+        let l:ret = {'kind': ''}
+        return l:ret " Early return.
+    endif
+
+    if l:ret['kind'] ==? 'gnat_project'
+                \ && lib#diapp_file#FileExists(a:file_name)
+        " The file is an existing GNAT project file.
+
+        " Load the file as a list of strings (lines).
+        let l:gpr_text = readfile(a:file_name)
+
+        " Extract lexemes until finding the project keyword and update the
+        " returned dictionary items according to the found reserved words.
+        let l:lexeme = []
+        let l:lexer_state = {}
+        while !has_key(l:lexer_state, 'd') || !l:lexer_state['d']
+
+            let l:lexer_state = lib#diapp_ada#MoveToLexemeTail(
+                        \ l:gpr_text, l:lexer_state, s:ReservedWord())
+
+            if l:lexer_state['lexeme'] ==? "project"
+                " The lexeme is the 'project' reserved word.
+
+                " Loop over the lexeme seen just before the 'project' reserved
+                " word and update the returned dictionary items accordingly.
+                for k in l:lexeme
+                    if k ==? "abstract"
+                        let l:ret['abstract'] = 1
+                    elseif k ==? "aggregate"
+                        let l:ret['aggregate'] = 1
+                    elseif k ==? "library"
+                        let l:ret['library'] = 1
+                    endif
+                endfor
+                break " Early loop exit.
+            elseif l:lexer_state['lexeme'] == ";"
+                " The lexeme is a semicolon, probably terminating a with
+                " clause.
+
+                " Reset the lexeme list as we are not interested in the with
+                " clause lexeme.
+                let l:lexeme = []
+            else
+                " The lexeme is neither a semicolon nor the 'project' reserved
+                " word.
+
+                " Append the lexeme to the lexeme list.
+                let l:lexeme = l:lexeme + [l:lexer_state['lexeme']]
+            endif
+         endwhile
+
+    endif
+
+    return l:ret
+
+endfunction
+
+" -----------------------------------------------------------------------------
+
+" Return a truthy value if the provided dictionary (supposed to have been
+" returned by 's:FileInfo') seems to be the one of a concrete (i.e. not
+" abstract) GNAT project file and a falsy value otherwise.
+"
+" Argument #1:
+" Dictionary as output by 's:FileInfo'.
+"
+" Return value:
+" Truthy for a concrete (i.e. not abstract) GNAT project file, falsy otherwise.
+
+function s:IsConcreteGNATProject(file_info_dic)
+
+    return a:file_info_dic['kind'] ==? 'gnat_project'
+                \ && !a:file_info_dic['abstract']
+
+endfunction
+
+" -----------------------------------------------------------------------------
+
 " Return an empty string (which indicates a failure of the function) or the
 " relative path name of a GNAT project file located in or above the directory
 " containing the file provided as argument. If no argument is provided or an
@@ -68,7 +252,7 @@ function s:GuessedGPRFile(...)
         let l:dir = lib#diapp_file#Full(a:1)
     endif
 
-    let l:ext = lib#diapp_ada#Ext('gnat_project')
+    let l:ext = ".gpr"
     let l:default_gpr = "default" . l:ext
     let l:test_gpr_filter = '*_test' . l:ext
     let l:all_gpr_filter = '*' . l:ext
@@ -93,7 +277,7 @@ function s:GuessedGPRFile(...)
                 let l:gpr_list = glob(l:f, 0, 1)
                 for gpr in l:gpr_list
                     if lib#diapp_file#FileExists(gpr)
-                        let l:f_i = lib#diapp_ada#FileInfo(gpr)
+                        let l:f_i = s:FileInfo(gpr)
                         if !l:f_i['abstract']
                             let l:ret = gpr
                             let l:done = 1
@@ -187,7 +371,7 @@ function s:GPRbuildShellCommand(current_state, gpr, ...)
 
         let l:ret = l:ret . " -U -f"
 
-        if a:1 =~? escape(lib#diapp_ada#Ext("spec"), '.') . "$"
+        if a:1 =~? "\.ads$"
             " The source file is an Ada specification.
 
             let l:ret = l:ret . " -gnatc"
@@ -219,8 +403,8 @@ function feat#diapp_gprbuild#SelectGPRFile(current_state, ...)
     if a:0 == 0
         let a:current_state['gnat_project'] = s:FileNameForUI()
     else
-        let l:f_i = lib#diapp_ada#FileInfo(a:1)
-        if lib#diapp_ada#IsConcreteGNATProject(l:f_i)
+        let l:f_i = s:FileInfo(a:1)
+        if s:IsConcreteGNATProject(l:f_i)
             let a:current_state['gnat_project'] = s:FileNameForUI(a:1)
         elseif l:f_i['kind'] !=? 'gnat_project'
             call diapp#WarnNothingDone("Not a GNAT project.")
@@ -537,7 +721,7 @@ function feat#diapp_gprbuild#UpdatedState(current_state)
     let l:s[l:menu] = {'label': "&GPRbuild", 'sub': []}
 
     let l:gpr_candidate = s:FileNameForUI()
-    let l:ada_file_info = lib#diapp_ada#FileInfo(l:gpr_candidate)
+    let l:ada_file_info = s:FileInfo(l:gpr_candidate)
 
     " -----------------------------------------------------
 
@@ -557,8 +741,7 @@ function feat#diapp_gprbuild#UpdatedState(current_state)
 
         " Determining whether the current file is a valid GNAT project file
         " candidate.
-        let l:valid_gpr_candidate = lib#diapp_ada#IsConcreteGNATProject(
-                    \ l:ada_file_info)
+        let l:valid_gpr_candidate = s:IsConcreteGNATProject(l:ada_file_info)
 
         if l:valid_gpr_candidate
             " The current file is a valid GNAT project file candidate.
@@ -677,8 +860,7 @@ function feat#diapp_gprbuild#UpdatedState(current_state)
 
         " Determining whether the current file is a valid GNAT project file
         " candidate.
-        let l:valid_gpr_candidate = lib#diapp_ada#IsConcreteGNATProject(
-                    \ l:ada_file_info)
+        let l:valid_gpr_candidate = s:IsConcreteGNATProject(l:ada_file_info)
 
         if l:valid_gpr_candidate
             let l:s[l:com][-1] = l:s[l:com][-1]
