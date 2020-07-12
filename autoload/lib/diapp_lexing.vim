@@ -49,24 +49,24 @@ function lib#diapp_lexing#MoveToNextChar(text, state)
 
     " Initialize state if needed.
     if empty(l:s)
-        let l:s['l'] = 0
-        let l:s['c'] = 0
-        let l:s['d'] = l:ln == 0
-        let l:s['e'] = ""
-        let l:s['m'] = {'l': 0, 'c':0}
+        let l:s.l = 0
+        let l:s.c = 0
+        let l:s.d = l:ln == 0
+        let l:s.e = ""
+        let l:s.m = {'l': 0, 'c':0}
     endif
 
-    if l:s['d']
+    if l:s.d
         " End of text already reached, nothing more can be done.
 
         return l:s " Early return.
     endif
 
-    if l:s['l'] == 0 || l:s['c'] == strchars(a:text[l:s['l'] - 1])
+    if l:s.l == 0 || l:s.c == strchars(a:text[l:s.l - 1])
         " We have to move to next line if possible.
 
         " Copy the current line number.
-        let l:new_l = l:s['l']
+        let l:new_l = l:s.l
 
         " Increment line number copy as long as the next line is empty, or stop
         " if there's no next line.
@@ -76,32 +76,32 @@ function lib#diapp_lexing#MoveToNextChar(text, state)
 
         if l:new_l < l:ln
             " 'l:new_l + 1' is the number of the first non empty line after
-            " 'l:s['l']'.
+            " 'l:s.l'.
 
-            let l:s['m'] = {'l': l:new_l + 1 - l:s['l'], 'c': 0}
-            let l:s['l'] = l:s['l'] + l:s['m']['l']
-            let l:s['c'] = 1
+            let l:s.m = {'l': l:new_l + 1 - l:s.l, 'c': 0}
+            let l:s.l = l:s.l + l:s.m.l
+            let l:s.c = 1
         else
-            " There is no non empty lines after 'l:s['l']'.
+            " There is no non empty lines after 'l:s.l'.
 
             " Set the "done" flag in the state.
-            let l:s['d'] = 1
+            let l:s.d = 1
 
-            let l:s['e'] = ""
-            let l:s['m'] = {'l': 0, 'c':0}
+            let l:s.e = ""
+            let l:s.m = {'l': 0, 'c':0}
             return l:s " Early return.
         endif
 
     else
         " We just have to move to the next character on the same line.
 
-        let l:s['m'] = {'l': 0, 'c': 1}
-        let l:s['c'] = l:s['c'] + l:s['m']['c']
+        let l:s.m = {'l': 0, 'c': 1}
+        let l:s.c = l:s.c + l:s.m.c
     endif
 
     " Update the current character key of the state.
-    let l:s['e'] = lib#diapp_vim800func#StrCharPart(
-                \ a:text[l:s['l'] - 1], l:s['c'] - 1, 1)
+    let l:s.e = lib#diapp_vim800func#StrCharPart(
+                \ a:text[l:s.l - 1], l:s.c - 1, 1)
 
     return l:s
 
@@ -127,12 +127,12 @@ function lib#diapp_lexing#MoveToNextLine(text, state)
 
     let l:s = lib#diapp_lexing#MoveToNextChar(a:text, a:state)
 
-    if l:s['m']['l'] == 0 && l:s['m']['c'] == 1
+    if l:s.m.l == 0 && l:s.m.c == 1
         " The "move to next char" operation has moved to next character.
 
         " Change the state so that it "points" to the last character of the
         " line.
-        let l:s['c'] = strchars(a:text[l:s['l'] - 1])
+        let l:s.c = strchars(a:text[l:s.l - 1])
 
         " Do another "move to next char" operation. It will move to the next
         " non empty line if any. Return immediately.

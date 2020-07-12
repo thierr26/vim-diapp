@@ -95,25 +95,25 @@ function diapp#GetFeatOpt(feat, current_state, id, default)
     let l:desired_value = exists(l:identifier) ? {l:identifier} : a:default
 
     if !has_key(a:current_state, 'option')
-        let a:current_state['option'] = {}
+        let a:current_state.option = {}
     endif
 
-    if !has_key(a:current_state['option'], a:id)
-        let a:current_state['option'][a:id]
+    if !has_key(a:current_state.option, a:id)
+        let a:current_state.option[a:id]
                     \ = {'value': l:desired_value,
                     \ 'warning_issued': 0}
-    elseif a:current_state['option'][a:id]['value'] !=# l:desired_value
-                \ && !a:current_state['option'][a:id]['warning_issued']
+    elseif a:current_state.option[a:id].value !=# l:desired_value
+                \ && !a:current_state.option[a:id].warning_issued
         echohl WarningMsg
         echomsg "You have set or changed variable '"
                     \ . l:identifier
                     \ . "' but it's too late to take the change into account. "
                     \ . "Set the variable on Vim startup using a vimrc file."
         echohl None
-        let a:current_state['option'][a:id]['warning_issued'] = 1
+        let a:current_state.option[a:id].warning_issued = 1
     endif
 
-    return a:current_state['option'][a:id]['value']
+    return a:current_state.option[a:id].value
 
 endfunction
 
@@ -242,9 +242,9 @@ function s:UpdateFeatureState(feat, current_state)
         " dictionary.
         let l:s = a:current_state
 
-        if !l:s['disabled']
+        if !l:s.disabled
                     \ && l:user_desired_disabled_item
-                    \ && !l:s['no_disabling_warning_issued']
+                    \ && !l:s.no_disabling_warning_issued
             echohl WarningMsg
             echomsg "You have set flag 'g:diapp_"
                         \ . a:feat
@@ -254,14 +254,14 @@ function s:UpdateFeatureState(feat, current_state)
                         \ . "'. Set the flag on Vim startup using a vimrc "
                         \ . "file."
             echohl None
-            let l:s['no_disabling_warning_issued'] = 1
-        elseif l:s['disabled']
-            let l:s['disabled'] = l:user_desired_disabled_item
+            let l:s.no_disabling_warning_issued = 1
+        elseif l:s.disabled
+            let l:s.disabled = l:user_desired_disabled_item
         endif
 
     endif
 
-    if l:s['disabled'] || !feat#diapp_gprbuild#CannotSkipUpdate()
+    if l:s.disabled || !feat#diapp_gprbuild#CannotSkipUpdate()
         " The feature is disabled or it is enabled but the edited file is such
         " that the feature state dictionary update can be skipped.
         let s:skipped_update[a:feat] = 1
@@ -277,7 +277,7 @@ function s:UpdateFeatureState(feat, current_state)
     call feat#diapp_{a:feat}#UpdatedState(l:s)
 
     " The 'disabled' item must not have been changed.
-    if l:s['disabled']
+    if l:s.disabled
         throw "Internal error: function 'feat#diapp_"
                     \ . a:feat
                     \ . "#UpdatedState' has changed the 'disabled' item of "
@@ -324,8 +324,8 @@ function s:UpdatedState(...)
 
     " For each feature (i.e. for each item of the 'feat' item of the dictionary
     " state), update the feature state.
-    for k in keys(l:s['feat'])
-        let l:s['feat'][k] = s:UpdateFeatureState(k, l:s['feat'][k])
+    for k in keys(l:s.feat)
+        let l:s.feat[k] = s:UpdateFeatureState(k, l:s.feat[k])
     endfor
 
     return l:s
@@ -364,7 +364,7 @@ function s:CreateUIFeatureMenu(feat, ...)
 
         " The needed menu data are in the 'menu' item of the feature state
         " dictionary.
-        let l:menu_data = s:state['feat'][a:feat][diapp#FeatStateKeyMenu()]
+        let l:menu_data = s:state.feat[a:feat][diapp#FeatStateKeyMenu()]
 
     else
         " The two optional arguments are provided.
@@ -383,27 +383,27 @@ function s:CreateUIFeatureMenu(feat, ...)
         " The menu item to be created is itself a menu.
 
         " Loop over the items of the menu.
-        for s in l:menu_data['sub']
+        for s in l:menu_data.sub
 
             " Do a recursive call with the appropriate optional arguments.
             call s:CreateUIFeatureMenu(a:feat,
-                        \ l:ancestor_list + [l:menu_data['label']], s)
+                        \ l:ancestor_list + [l:menu_data.label], s)
         endfor
 
     else
         " The menu item to be created is a "leaf" item.
 
         " Create the menu item.
-        let l:mode = l:menu_data['mode']
-        let l:label = join(l:ancestor_list + [l:menu_data['label']], '.')
-        if has_key(l:menu_data, 'mapping') && !empty(l:menu_data['mapping'])
-            let l:label = l:label . '<TAB>' . l:menu_data['mapping']
+        let l:mode = l:menu_data.mode
+        let l:label = join(l:ancestor_list + [l:menu_data.label], '.')
+        if has_key(l:menu_data, 'mapping') && !empty(l:menu_data.mapping)
+            let l:label = l:label . '<TAB>' . l:menu_data.mapping
         endif
-        let l:cmd = l:menu_data['command']
+        let l:cmd = l:menu_data.command
         execute l:mode . "noremenu <silent> " . l:label . " " . l:cmd
 
         " Enable or disable the item.
-        let l:status = l:menu_data['enabled'] ? "enable" : "disable"
+        let l:status = l:menu_data.enabled ? "enable" : "disable"
         execute l:mode . "menu " . l:status . " " . l:label
 
     endif
@@ -482,12 +482,12 @@ function s:DiappRefreshUI(...)
 
         " Refresh the graphical menu for all the enabled features that actually
         " have a menu.
-        for k in keys(s:state['feat'])
-            if !s:state['feat'][k]['disabled']
+        for k in keys(s:state.feat)
+            if !s:state.feat[k].disabled
                         \ && !s:skipped_update[k]
-                        \ && has_key(s:state['feat'][k], l:menu)
+                        \ && has_key(s:state.feat[k], l:menu)
                 try
-                    execute "aunmenu " . s:state['feat'][k][l:menu]['label']
+                    execute "aunmenu " . s:state.feat[k][l:menu].label
                 catch
                     " We get there if the feature menu does not yet exist.
                 endtry
@@ -498,18 +498,18 @@ function s:DiappRefreshUI(...)
 
     " Refresh the user commands.
     let l:com = diapp#FeatStateKeyCom()
-    for k in keys(s:state['feat'])
-        if !s:state['feat'][k]['disabled']
+    for k in keys(s:state.feat)
+        if !s:state.feat[k].disabled
                     \ && !s:skipped_update[k]
-                    \ && has_key(s:state['feat'][k], l:com)
-            for comm in s:state['feat'][k][l:com]
+                    \ && has_key(s:state.feat[k], l:com)
+            for comm in s:state.feat[k][l:com]
                 execute "command! " . comm
             endfor
         endif
     endfor
 
     " Reset 's:skipped_update'.
-    for k in keys(s:state['feat'])
+    for k in keys(s:state.feat)
         let s:skipped_update[k] = 0
     endfor
 
@@ -547,7 +547,7 @@ endfunction
 
 function diapp#RunFeatureFunc(feat, FuRef, ...)
 
-    call call(a:FuRef, [s:state['feat'][a:feat]] + a:000)
+    call call(a:FuRef, [s:state.feat[a:feat]] + a:000)
 
 endfunction
 

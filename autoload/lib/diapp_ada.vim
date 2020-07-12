@@ -178,18 +178,18 @@ function lib#diapp_ada#MoveToLexemeTail(text, state, ...)
 
     while l:is_comment
 
-        if has_key(l:s, 'd') && l:s['d']
+        if has_key(l:s, 'd') && l:s.d
             " End of text already reached, nothing more can be done.
 
             return l:s " Early return.
         endif
 
-        while (!has_key(l:s, 'd') || !l:s['d'])
-                    \ && match(l:s['e'], l:blank_regexp) != -1
+        while (!has_key(l:s, 'd') || !l:s.d)
+                    \ && match(l:s.e, l:blank_regexp) != -1
             let l:s = lib#diapp_lexing#MoveToNextChar(a:text, l:s)
         endwhile
 
-        if l:s['d']
+        if l:s.d
             " End of text reached, nothing more can be done.
 
             return l:s " Early return.
@@ -200,26 +200,26 @@ function lib#diapp_ada#MoveToLexemeTail(text, state, ...)
 
         " If the lexeme is a comment, skip it.
         let l:is_comment = 0
-        if l:s['e'] == '-'
+        if l:s.e == '-'
             let l:test_s = lib#diapp_lexing#MoveToNextChar(a:text, l:s)
-            if !l:test_s['d']
-                        \ && l:test_s['l'] == l:s['l']
-                        \ && l:test_s['e'] == "-"
+            if !l:test_s.d
+                        \ && l:test_s.l == l:s.l
+                        \ && l:test_s.e == "-"
                 let l:is_comment = 1
                 let l:s = lib#diapp_lexing#MoveToNextLine(a:text, l:s)
             endif
         endif
     endwhile
 
-    let l:l = l:s['l']
-    let l:c = l:s['c']
+    let l:l = l:s.l
+    let l:c = l:s.c
 
     " In some cases (unterminated string literal for example), the lexeme field
     " of the returned dictionary will be "fixed" by appending a non empty
     " 'l:fix_tail'.
     let l:fix_tail = ""
 
-    if l:s['e'] == "\""
+    if l:s.e == "\""
         " The lexeme is a string literal .
 
         " Moving forward to the end of the string literal or to the end of the
@@ -229,17 +229,17 @@ function lib#diapp_ada#MoveToLexemeTail(text, state, ...)
         let l:done = 0
         while !l:done
 
-            while (!has_key(l:s, 'd') || !l:s['d'])
-                        \ && l:s['l'] == l:l
+            while (!has_key(l:s, 'd') || !l:s.d)
+                        \ && l:s.l == l:l
                         \ && l:cur_char != "\""
 
                 let l:old_s = deepcopy(l:s)
                 let l:s = lib#diapp_lexing#MoveToNextChar(a:text, l:s)
-                let l:cur_char = l:s['e']
+                let l:cur_char = l:s.e
 
             endwhile
 
-            if l:s['l'] != l:l || (has_key(l:s, 'd') && l:s['d'])
+            if l:s.l != l:l || (has_key(l:s, 'd') && l:s.d)
                 " End of line found before end of string literal.
 
                 " Make sure 'l:s' "points" to the end of the line containing
@@ -254,30 +254,30 @@ function lib#diapp_ada#MoveToLexemeTail(text, state, ...)
                 " double quote character) or not (in the opposite case).
 
                 let l:test_s = lib#diapp_lexing#MoveToNextChar(a:text, l:s)
-                if l:test_s['d']
-                            \ || l:test_s['l'] != l:l
-                            \ || l:test_s['e'] != "\""
+                if l:test_s.d
+                            \ || l:test_s.l != l:l
+                            \ || l:test_s.e != "\""
                     " The found double quote was the end of the string literal.
                     let l:done = 1
                 endif
             endif
         endwhile
         let l:token_name = "string_literal"
-    elseif l:s['e'] == "'"
-                \ && match(a:state['e'], "[A-Za-z0-9]") == -1
-                \ && l:s['c'] <= strchars(a:text[l:l - 1]) - 2
+    elseif l:s.e == "'"
+                \ && match(a:state.e, "[A-Za-z0-9]") == -1
+                \ && l:s.c <= strchars(a:text[l:l - 1]) - 2
                 \ && lib#diapp_vim800func#StrCharPart(
-                \ a:text[l:l - 1], l:s['c'] + 1, 1) == "'"
+                \ a:text[l:l - 1], l:s.c + 1, 1) == "'"
         " The lexeme is a character literal.
         let l:s = lib#diapp_lexing#MoveToNextChar(a:text, l:s)
         let l:s = lib#diapp_lexing#MoveToNextChar(a:text, l:s)
         let l:token_name = "character_literal"
-    elseif s:IsDelimiter(l:s['e'])
+    elseif s:IsDelimiter(l:s.e)
         " The lexeme is a delimiter.
         let l:old_s = deepcopy(l:s)
         let l:s = lib#diapp_lexing#MoveToNextChar(a:text, l:s)
-        if !l:s['d'] && l:s['l'] == l:l
-            let l:compound_candidate = l:old_s['e'].l:s['e']
+        if !l:s.d && l:s.l == l:l
+            let l:compound_candidate = l:old_s.e.l:s.e
             if l:compound_candidate != "=>"
                         \ && l:compound_candidate != "=>"
                         \ && l:compound_candidate != ".."
@@ -297,14 +297,14 @@ function lib#diapp_ada#MoveToLexemeTail(text, state, ...)
             let l:s = deepcopy(l:old_s)
         endif
         let l:token_name = "delimiter"
-    elseif match(l:s['e'], "[0-9]") != -1
+    elseif match(l:s.e, "[0-9]") != -1
         " The lexeme is a numerical literal.
         let l:old_s = deepcopy(l:s)
-        while !l:s['d']
-                    \ && l:s['l'] == l:l
-                    \ && (match(l:s['e'], "[0-9_\.#a-fA-F]") != -1
-                    \ || (match(l:s['e'], "[+-]") != -1
-                    \ && match(l:old_s['e'], "[eE]") != -1))
+        while !l:s.d
+                    \ && l:s.l == l:l
+                    \ && (match(l:s.e, "[0-9_\.#a-fA-F]") != -1
+                    \ || (match(l:s.e, "[+-]") != -1
+                    \ && match(l:old_s.e, "[eE]") != -1))
             let l:old_s = deepcopy(l:s)
             let l:s = lib#diapp_lexing#MoveToNextChar(a:text, l:s)
         endwhile
@@ -312,10 +312,10 @@ function lib#diapp_ada#MoveToLexemeTail(text, state, ...)
         let l:token_name = "numerical_literal"
     else
         " The lexeme is an identifier or a reserved word.
-        while !l:s['d']
-                    \ && l:s['l'] == l:l
-                    \ && !s:IsDelimiter(l:s['e'])
-                    \ && match(l:s['e'], l:blank_regexp) == -1
+        while !l:s.d
+                    \ && l:s.l == l:l
+                    \ && !s:IsDelimiter(l:s.e)
+                    \ && match(l:s.e, l:blank_regexp) == -1
             let l:old_s = deepcopy(l:s)
             let l:s = lib#diapp_lexing#MoveToNextChar(a:text, l:s)
         endwhile
@@ -324,20 +324,20 @@ function lib#diapp_ada#MoveToLexemeTail(text, state, ...)
     endif
 
     " Add a 'lexeme' item to the returned dictionary.
-    let l:s['lexeme'] = lib#diapp_vim800func#StrCharPart(
-                \ a:text[l:l - 1], l:c - 1, l:s['c'] + 1 - l:c) . l:fix_tail
+    let l:s.lexeme = lib#diapp_vim800func#StrCharPart(
+                \ a:text[l:l - 1], l:c - 1, l:s.c + 1 - l:c) . l:fix_tail
 
     " Add the lexeme location (keys 'lexeme_l' (line) and 'lexeme_c' (column))
     " to the returned dictionary.
-    let l:s['lexeme_l'] = l:l
-    let l:s['lexeme_c'] = l:c
+    let l:s.lexeme_l = l:l
+    let l:s.lexeme_c = l:c
 
     if l:token_name ==? 'identifier'
 
         " Change 'l:token_name' from 'identifier' to 'reserved_word' if
         " appropriate.
         for w in l:reserved_word
-            if l:s['lexeme'] ==? w
+            if l:s.lexeme ==? w
                 let l:token_name = "reserved_word"
                 break " Early loop exit.
             endif
@@ -345,7 +345,7 @@ function lib#diapp_ada#MoveToLexemeTail(text, state, ...)
     endif
 
     " Add the 'token_name' item to the returned dictionary.
-    let l:s['token_name'] = l:token_name
+    let l:s.token_name = l:token_name
 
     return l:s
 
