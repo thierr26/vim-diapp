@@ -107,6 +107,24 @@ endfunction
 
 " -----------------------------------------------------------------------------
 
+" Return a truthy value if the provided dictionary (supposed to have been
+" returned by 's:FileInfo') seems to be the one of a concrete (i.e. not
+" abstract) GNAT project file and a falsy value otherwise.
+"
+" Argument #1:
+" Dictionary as output by 's:FileInfo'.
+"
+" Return value:
+" Truthy for a concrete (i.e. not abstract) GNAT project file, falsy otherwise.
+
+function s:IsConcreteGNATProject() dict
+
+    return self.kind ==? 'gnat_project' && !self.abstract
+
+endfunction
+
+" -----------------------------------------------------------------------------
+
 " Return a dictionary containing various information about the Ada source file
 " or project file provided as argument.
 "
@@ -150,7 +168,7 @@ function s:FileInfo(file_name)
         return l:ret " Early return.
     endif
 
-    if l:ret['kind'] ==? 'gnat_project'
+    if l:ret.kind ==? 'gnat_project'
                 \ && lib#diapp_file#FileExists(a:file_name)
         " The file is an existing GNAT project file.
 
@@ -161,27 +179,27 @@ function s:FileInfo(file_name)
         " returned dictionary items according to the found reserved words.
         let l:lexeme = []
         let l:lexer_state = {}
-        while !has_key(l:lexer_state, 'd') || !l:lexer_state['d']
+        while !has_key(l:lexer_state, 'd') || !l:lexer_state.d
 
             let l:lexer_state = lib#diapp_ada#MoveToLexemeTail(
                         \ l:gpr_text, l:lexer_state, s:ReservedWord())
 
-            if l:lexer_state['lexeme'] ==? "project"
+            if l:lexer_state.lexeme ==? "project"
                 " The lexeme is the 'project' reserved word.
 
                 " Loop over the lexeme seen just before the 'project' reserved
                 " word and update the returned dictionary items accordingly.
                 for k in l:lexeme
                     if k ==? "abstract"
-                        let l:ret['abstract'] = 1
+                        let l:ret.abstract = 1
                     elseif k ==? "aggregate"
-                        let l:ret['aggregate'] = 1
+                        let l:ret.aggregate = 1
                     elseif k ==? "library"
-                        let l:ret['library'] = 1
+                        let l:ret.library = 1
                     endif
                 endfor
                 break " Early loop exit.
-            elseif l:lexer_state['lexeme'] == ";"
+            elseif l:lexer_state.lexeme == ";"
                 " The lexeme is a semicolon, probably terminating a with
                 " clause.
 
@@ -193,32 +211,15 @@ function s:FileInfo(file_name)
                 " word.
 
                 " Append the lexeme to the lexeme list.
-                let l:lexeme = l:lexeme + [l:lexer_state['lexeme']]
+                let l:lexeme = l:lexeme + [l:lexer_state.lexeme]
             endif
          endwhile
 
     endif
 
+    let l:ret.is_concrete = function("s:IsConcreteGNATProject")
+
     return l:ret
-
-endfunction
-
-" -----------------------------------------------------------------------------
-
-" Return a truthy value if the provided dictionary (supposed to have been
-" returned by 's:FileInfo') seems to be the one of a concrete (i.e. not
-" abstract) GNAT project file and a falsy value otherwise.
-"
-" Argument #1:
-" Dictionary as output by 's:FileInfo'.
-"
-" Return value:
-" Truthy for a concrete (i.e. not abstract) GNAT project file, falsy otherwise.
-
-function s:IsConcreteGNATProject(file_info_dic)
-
-    return a:file_info_dic['kind'] ==? 'gnat_project'
-                \ && !a:file_info_dic['abstract']
 
 endfunction
 
@@ -278,7 +279,7 @@ function s:GuessedGPRFile(...)
                 for gpr in l:gpr_list
                     if lib#diapp_file#FileExists(gpr)
                         let l:f_i = s:FileInfo(gpr)
-                        if !l:f_i['abstract']
+                        if !l:f_i.abstract
                             let l:ret = gpr
                             let l:done = 1
                             break " Early loop exit (innermost for loop).
@@ -404,9 +405,9 @@ function feat#diapp_gprbuild#SelectGPRFile(current_state, ...)
         let a:current_state['gnat_project'] = s:FileNameForUI()
     else
         let l:f_i = s:FileInfo(a:1)
-        if s:IsConcreteGNATProject(l:f_i)
+        if l:fi.is_concrete()
             let a:current_state['gnat_project'] = s:FileNameForUI(a:1)
-        elseif l:f_i['kind'] !=? 'gnat_project'
+        elseif l:f_i.kind !=? 'gnat_project'
             call diapp#WarnNothingDone("Not a GNAT project.")
         else
             call diapp#WarnNothingDone("Abstract GNAT project.")
@@ -741,7 +742,7 @@ function feat#diapp_gprbuild#UpdatedState(current_state)
 
         " Determining whether the current file is a valid GNAT project file
         " candidate.
-        let l:valid_gpr_candidate = s:IsConcreteGNATProject(l:ada_file_info)
+        let l:valid_gpr_candidate = l:ada_file_info.is_concrete()
 
         if l:valid_gpr_candidate
             " The current file is a valid GNAT project file candidate.
@@ -761,7 +762,7 @@ function feat#diapp_gprbuild#UpdatedState(current_state)
 
             let l:sel = "The selected GNAT project is "
 
-            if l:ada_file_info['kind'] ==? 'gnat_project'
+            if l:ada_file_info.kind ==? 'gnat_project'
                 if empty(l:s['gnat_project'])
                     let l:lab = s:EscapeUIString(
                                 \ "("
@@ -855,12 +856,12 @@ function feat#diapp_gprbuild#UpdatedState(current_state)
                 \ substitute(l:no_gpr_selected, '\.$', "", ""),
                 \ '^\(.\)', '\l\1', "") . "'"
 
-    if l:ada_file_info['kind'] ==? 'gnat_project'
+    if l:ada_file_info.kind ==? 'gnat_project'
         " The current file is a GNAT project.
 
         " Determining whether the current file is a valid GNAT project file
         " candidate.
-        let l:valid_gpr_candidate = s:IsConcreteGNATProject(l:ada_file_info)
+        let l:valid_gpr_candidate = l:ada_file_info.is_concrete()
 
         if l:valid_gpr_candidate
             let l:s[l:com][-1] = l:s[l:com][-1]
