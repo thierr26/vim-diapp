@@ -678,48 +678,41 @@ endfunction
 " Update the feature state dictionary. The 'disabled' item is never updated and
 " is assumed to be true. The 'active' item may have been modified.
 "
-" Argument #1:
-" Current value of the feature state dictionary.
-"
 " See also:
 " diapp#FeatStateKeyActive
 
-function feat#diapp_gprbuild#UpdatedState(current_state)
+function feat#diapp_gprbuild#UpdatedState() dict
 
-    " Have 'l:s' (shorter to write than "a:current_state") point to
-    " 'a:current_state'.
-    let l:s = a:current_state
+    let self[diapp#FeatStateKeyActive()] = 1 " The feature is always active.
 
-    let l:s[diapp#FeatStateKeyActive()] = 1 " The feature is always active.
-
-    if !l:s[diapp#FeatStateKeyActive()]
-        return l:s " Early return.
+    if !self[diapp#FeatStateKeyActive()]
+        return self " Early return.
     endif
 
-    if !has_key(l:s, 'gnat_project')
-        let l:s.gnat_project = diapp#GetFeatOpt(
-                    \ 'gprbuild', l:s, 'default_gpr_file', '')
+    if !has_key(self, 'gnat_project')
+        let self.gnat_project = diapp#GetFeatOpt(
+                    \ 'gprbuild', self, 'default_gpr_file', '')
         " Not using 's:GuessedGPRFile()' as third argument to
         " 'diapp#GetFeatOpt' but only when actually needed probably speeds up
         " the function.
-        if empty(l:s.gnat_project)
-            let l:s.gnat_project = s:GuessedGPRFile()
+        if empty(self.gnat_project)
+            let self.gnat_project = s:GuessedGPRFile()
         endif
     endif
 
-    if !has_key(l:s, 'gprbuild_opt')
-        let l:s.gprbuild_opt = diapp#GetFeatOpt(
-                    \ 'gprbuild', l:s, 'default_gprbuild_options', '')
+    if !has_key(self, 'gprbuild_opt')
+        let self.gprbuild_opt = diapp#GetFeatOpt(
+                    \ 'gprbuild', self, 'default_gprbuild_options', '')
     endif
 
     " Reset the 'menu' item of the feature state dictionary before building
     " each menu item.
 
     let l:com = diapp#FeatStateKeyCom()
-    let l:s[l:com] = []
+    let self[l:com] = []
 
     let l:menu = diapp#FeatStateKeyMenu()
-    let l:s[l:menu] = {'label': "&GPRbuild", 'sub': []}
+    let self[l:menu] = {'label': "&GPRbuild", 'sub': []}
 
     let l:gpr_candidate = s:FileNameForUI()
     let l:ada_file_info = s:FileInfo(l:gpr_candidate)
@@ -729,7 +722,7 @@ function feat#diapp_gprbuild#UpdatedState(current_state)
     let l:no_gpr_selected = "No GNAT project selected."
     let l:abst_gpr = " is abstract."
 
-    if !empty(l:s.gnat_project) && l:gpr_candidate ==# l:s.gnat_project
+    if !empty(self.gnat_project) && l:gpr_candidate ==# self.gnat_project
         " Current file has already been chosen as GNAT project file.
 
         let l:lab = s:EscapeUIString(
@@ -747,11 +740,11 @@ function feat#diapp_gprbuild#UpdatedState(current_state)
         if l:valid_gpr_candidate
             " The current file is a valid GNAT project file candidate.
 
-            if empty(l:s.gnat_project)
+            if empty(self.gnat_project)
                 let l:instead_of_indication = ""
             else
                 let l:instead_of_indication
-                            \ = " (instead of " . l:s.gnat_project . ")"
+                            \ = " (instead of " . self.gnat_project . ")"
             endif
 
             let l:lab = s:EscapeUIString(
@@ -763,7 +756,7 @@ function feat#diapp_gprbuild#UpdatedState(current_state)
             let l:sel = "The selected GNAT project is "
 
             if l:ada_file_info.kind ==? 'gnat_project'
-                if empty(l:s.gnat_project)
+                if empty(self.gnat_project)
                     let l:lab = s:EscapeUIString(
                                 \ "("
                                 \ . l:gpr_candidate
@@ -778,11 +771,11 @@ function feat#diapp_gprbuild#UpdatedState(current_state)
                                 \ . l:abst_gpr
                                 \ . " "
                                 \ . l:sel
-                                \ . l:s.gnat_project
+                                \ . self.gnat_project
                                 \ . ")")
                 endif
             else
-                if empty(l:s.gnat_project)
+                if empty(self.gnat_project)
                     let l:lab = s:EscapeUIString(
                                 \ "("
                                 \ . l:no_gpr_selected
@@ -791,7 +784,7 @@ function feat#diapp_gprbuild#UpdatedState(current_state)
                     let l:lab = s:EscapeUIString(
                                 \ "("
                                 \ . l:sel
-                                \ . l:s.gnat_project
+                                \ . self.gnat_project
                                 \ . ")")
                 endif
             endif
@@ -805,50 +798,50 @@ function feat#diapp_gprbuild#UpdatedState(current_state)
                 \ 'mode': "n",
                 \ 'command': l:cmd . "<CR>",
                 \ 'enabled': l:valid_gpr_candidate}
-    let l:s[l:menu].sub
-        \ = l:s[l:menu].sub + [l:menu_item_use_cur_file_as_gpr]
+    let self[l:menu].sub
+        \ = self[l:menu].sub + [l:menu_item_use_cur_file_as_gpr]
 
     let l:abstract_gpr_warn_msg_arg
                 \ = "'current file is not a concrete GNAT project file'"
 
-    let l:s[l:com] = l:s[l:com] + ["-nargs=0 SelectCurGPRFile "]
+    let self[l:com] = self[l:com] + ["-nargs=0 SelectCurGPRFile "]
     if l:valid_gpr_candidate
-        let l:s[l:com][-1] = l:s[l:com][-1] . l:cmd
+        let self[l:com][-1] = self[l:com][-1] . l:cmd
     else
-        let l:s[l:com][-1] = l:s[l:com][-1]
+        let self[l:com][-1] = self[l:com][-1]
                     \ . ":call diapp#WarnUnavlCom("
                     \ . l:abstract_gpr_warn_msg_arg
                     \ . ")"
     endif
-    let l:s[l:com] = l:s[l:com]
+    let self[l:com] = self[l:com]
                 \ + ["-nargs=1 -complete=file SelectGPRFile "
                 \ . ":call diapp#RunFeatureFuncAndRefreshUI('gprbuild', "
                 \ . "function('feat#diapp_gprbuild#SelectGPRFile'), "
                 \ . "<f-args>)"]
-    let l:s[l:com] = l:s[l:com]
+    let self[l:com] = self[l:com]
                 \ + ["-nargs=0 EchoGPRFile "
                 \ . ":call diapp#RunFeatureFunc('gprbuild', "
                 \ . "function('feat#diapp_gprbuild#EchoGPRFile'))"]
 
     " -----------------------------------------------------
 
-    let l:s[l:com] = l:s[l:com]
+    let self[l:com] = self[l:com]
                 \ + ["-nargs=1 SetGPRbuildOpt "
                 \ . ":call diapp#RunFeatureFunc('gprbuild', "
                 \ . "function('feat#diapp_gprbuild#SetGPRbuildOpt'), "
                 \ . "<f-args>)"]
-    let l:s[l:com] = l:s[l:com]
+    let self[l:com] = self[l:com]
                 \ + ["-nargs=0 ResetGPRbuildOpt "
                 \ . ":call diapp#RunFeatureFunc('gprbuild', "
                 \ . "function('feat#diapp_gprbuild#ResetGPRbuildOpt'))"]
-    let l:s[l:com] = l:s[l:com]
+    let self[l:com] = self[l:com]
                 \ + ["-nargs=0 EchoGPRbuildOpt "
                 \ . ":call diapp#RunFeatureFunc('gprbuild', "
                 \ . "function('feat#diapp_gprbuild#EchoGPRbuildOpt'))"]
 
     " -----------------------------------------------------
 
-    let l:s[l:com] = l:s[l:com]
+    let self[l:com] = self[l:com]
                 \ + ["-nargs=0 GPRbuildCompileCurFile "]
 
     let l:no_gpr_selected_arg
@@ -864,13 +857,13 @@ function feat#diapp_gprbuild#UpdatedState(current_state)
         let l:valid_gpr_candidate = l:ada_file_info.is_concrete()
 
         if l:valid_gpr_candidate
-            let l:s[l:com][-1] = l:s[l:com][-1]
+            let self[l:com][-1] = self[l:com][-1]
                         \ . ":call diapp#RunFeatureFunc('gprbuild', "
                         \ . "function('feat#diapp_gprbuild#BuildCurGNATProj'))"
             let l:ena = 1
             let l:lab = s:EscapeUIString("&Build " . s:FileNameForUI())
         else
-            let l:s[l:com][-1] = l:s[l:com][-1]
+            let self[l:com][-1] = self[l:com][-1]
                         \ . ":call diapp#WarnUnavlCom("
                         \ . l:abstract_gpr_warn_msg_arg
                         \ . ")"
@@ -881,15 +874,15 @@ function feat#diapp_gprbuild#UpdatedState(current_state)
     else
         " The current file is not a GNAT project.
 
-        if empty(l:s.gnat_project)
-            let l:s[l:com][-1] = l:s[l:com][-1]
+        if empty(self.gnat_project)
+            let self[l:com][-1] = self[l:com][-1]
                         \ . ":call diapp#WarnUnavlCom("
                         \ . l:no_gpr_selected_arg
                         \ . ")"
             let l:ena = 0
             let l:lab = s:EscapeUIString("&Compile current buffer file")
         else
-            let l:s[l:com][-1] = l:s[l:com][-1]
+            let self[l:com][-1] = self[l:com][-1]
                         \ . ":call diapp#RunFeatureFunc('gprbuild', "
                         \ . "function('feat#diapp_gprbuild#CompileCurFile'))"
             let l:ena = 1
@@ -898,7 +891,7 @@ function feat#diapp_gprbuild#UpdatedState(current_state)
     endif
 
     let l:map = diapp#GetFeatOpt(
-                \ 'gprbuild', l:s, 'compile_cur_mapping', '<F10>')
+                \ 'gprbuild', self, 'compile_cur_mapping', '<F10>')
     let l:cmd = ":GPRbuildCompileCurFile<CR>"
     let l:menu_item_compile_cur_file
                 \ = {'label': l:lab,
@@ -906,8 +899,8 @@ function feat#diapp_gprbuild#UpdatedState(current_state)
                 \ 'command': l:cmd,
                 \ 'enabled': l:ena,
                 \ 'mapping': l:map}
-    let l:s[l:menu].sub
-        \ = l:s[l:menu].sub + [l:menu_item_compile_cur_file]
+    let self[l:menu].sub
+        \ = self[l:menu].sub + [l:menu_item_compile_cur_file]
 
     execute "nnoremap " . l:map . " " . l:cmd
 

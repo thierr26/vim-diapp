@@ -261,6 +261,10 @@ function s:UpdateFeatureState(feat, current_state)
 
     endif
 
+    if !l:s.disabled && !has_key(l:s, 'update_state')
+        let l:s.update_state = function("feat#diapp_gprbuild#UpdatedState")
+    endif
+
     if l:s.disabled || !feat#diapp_gprbuild#CannotSkipUpdate()
         " The feature is disabled or it is enabled but the edited file is such
         " that the feature state dictionary update can be skipped.
@@ -274,7 +278,7 @@ function s:UpdateFeatureState(feat, current_state)
     " dictionary update cannot be skipped.
 
     " Update the feature state dictionary.
-    call feat#diapp_{a:feat}#UpdatedState(l:s)
+    call l:s.update_state()
 
     " The 'disabled' item must not have been changed.
     if l:s.disabled
