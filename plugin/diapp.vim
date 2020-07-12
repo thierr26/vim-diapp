@@ -165,19 +165,6 @@ endfunction
 
 " -----------------------------------------------------------------------------
 
-" Key for the "active" item of a feature state.
-"
-" Return value:
-" Key for the "active" item of a feature state.
-
-function diapp#FeatStateKeyActive()
-
-    return 'active'
-
-endfunction
-
-" -----------------------------------------------------------------------------
-
 " Key for the "menu" item of a feature state.
 "
 " Return value:

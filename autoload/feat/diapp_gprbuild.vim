@@ -676,18 +676,9 @@ endfunction
 " -----------------------------------------------------------------------------
 
 " Update the feature state dictionary. The 'disabled' item is never updated and
-" is assumed to be true. The 'active' item may have been modified.
-"
-" See also:
-" diapp#FeatStateKeyActive
+" is assumed to be true.
 
 function feat#diapp_gprbuild#UpdatedState() dict
-
-    let self[diapp#FeatStateKeyActive()] = 1 " The feature is always active.
-
-    if !self[diapp#FeatStateKeyActive()]
-        return self " Early return.
-    endif
 
     if !has_key(self, 'gnat_project')
         let self.gnat_project = diapp#GetFeatOpt(
