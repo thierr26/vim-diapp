@@ -24,7 +24,7 @@ else
     function s:systemlist(...)
         return split(call("system", a:000), '\n')
     endfunction
-    function s:systemlist_ref = function("s:systemlist")
+    let s:systemlist_ref = function("s:systemlist")
 
 endif
 
