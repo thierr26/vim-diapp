@@ -154,18 +154,18 @@ function s:FileInfo(file_name)
 
     let l:ext = "." . lib#diapp_file#Ext(a:file_name)
 
+    let l:ret = {'kind': '',
+                \ 'is_concrete': function("s:IsConcreteGNATProject")}
+
     if l:ext ==? ".ads"
-        let l:ret = {'kind': 'spec'}
+        let l:ret.kind = 'spec'
     elseif l:ext ==? ".adb"
-        let l:ret = {'kind': 'body'}
+        let l:ret.kind = 'body'
     elseif l:ext ==? ".gpr"
-        let l:ret = {'kind': 'gnat_project',
-                    \ 'abstract': 0,
-                    \ 'aggregate': 0,
-                    \ 'library': 0}
-    else
-        let l:ret = {'kind': ''}
-        return l:ret " Early return.
+        let l:ret.kind = 'gnat_project'
+        let l:ret.abstract = 0
+        let l:ret.aggregate = 0
+        let l:ret.library = 0
     endif
 
     if l:ret.kind ==? 'gnat_project'
@@ -216,8 +216,6 @@ function s:FileInfo(file_name)
          endwhile
 
     endif
-
-    let l:ret.is_concrete = function("s:IsConcreteGNATProject")
 
     return l:ret
 
