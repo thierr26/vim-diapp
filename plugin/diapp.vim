@@ -303,10 +303,12 @@ function s:UpdatedState(...)
         " No state dictionary provided as argument.
 
         " Initialize the return value with an embryonic initial state.
-        let l:s = {'feat': {'gprbuild': {}}}
+        let l:s = {'feat': {'gprbuild': {},
+                    \ 'fring': {}}}
 
         " Initialize s:skipped_update.
-        let s:skipped_update = {'gprbuild': 0}
+        let s:skipped_update = {'gprbuild': 0,
+                    \ 'fring': 0}
     else
         " Current state dictionary provided as argument.
 
