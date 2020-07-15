@@ -217,7 +217,7 @@ function feat#diapp_fring#EchoFRingCandidates(s)
     if empty(a:s.candidate)
 
         call diapp#Warn(s:BufferBaseFileName()
-                    \ . " cannot be part of a file ring")
+                    \ . " cannot be part of a file ring")
 
     else
 
@@ -247,7 +247,7 @@ function feat#diapp_fring#EchoFRingNext(s)
 
         let l:f = s:ring.next_file(a:s.candidate)
         if empty(l:f)
-            call diapp#Warn(s:BufferBaseFileName() . " is alone in the ring")
+            call diapp#Warn(s:BufferBaseFileName() . " is alone in the ring")
         else
             echo l:f
         endif

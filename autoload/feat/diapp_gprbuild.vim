@@ -335,7 +335,7 @@ endfunction
 "
 " -gnatef  : Display full source path name in brief error messages.
 "
-" -gnatU   : Force all error messages to be preceded by string ’error:’
+" -gnatU   : Force all error messages to be preceded by string 'error:'
 "
 " -f       : Force recompilation.
 "
