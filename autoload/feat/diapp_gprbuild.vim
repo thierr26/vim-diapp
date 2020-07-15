@@ -30,7 +30,7 @@ endfunction
 " Absolute or relative file name.
 "
 " Return value:
-" Name of current file, relative to current working directory if possible.
+" File name, relative to current working directory if possible.
 
 function s:FileNameForUI(...)
 
