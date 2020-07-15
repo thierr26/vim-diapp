@@ -273,7 +273,7 @@ function s:GuessedGPRFile(...)
         else
             for k in l:filter
                 let l:f = l:dir . "/" . k
-                let l:gpr_list = glob(l:f, 0, 1)
+                let l:gpr_list = glob(l:f, 1, 1)
                 for gpr in l:gpr_list
                     if lib#diapp_file#FileExists(gpr)
                         let l:f_i = s:FileInfo(gpr)
