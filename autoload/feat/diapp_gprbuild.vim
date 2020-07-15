@@ -403,7 +403,7 @@ function feat#diapp_gprbuild#SelectGPRFile(current_state, ...)
         let a:current_state.gnat_project = s:FileNameForUI()
     else
         let l:f_i = s:FileInfo(a:1)
-        if l:fi.is_concrete()
+        if l:f_i.is_concrete()
             let a:current_state.gnat_project = s:FileNameForUI(a:1)
         elseif l:f_i.kind !=? 'gnat_project'
             call diapp#WarnNothingDone("Not a GNAT project.")
