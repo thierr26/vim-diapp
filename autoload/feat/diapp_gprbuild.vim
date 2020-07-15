@@ -348,7 +348,7 @@ endfunction
 " Current feature state dictionary.
 "
 " Argument #2:
-" Absolute or relative GNAT project file name.
+" Empty string or (absolute or relative) GNAT project file name.
 "
 " Argument #3 (optional):
 " Absolute or relative Ada source file name.
