@@ -780,8 +780,8 @@ function feat#diapp_gprbuild#UpdatedState() dict
         endif
     endif
 
-    let l:cmd = ":call diapp#RunFeatureFuncAndRefreshUI('gprbuild', "
-                \ . "function('feat#diapp_gprbuild#SelectGPRFile'))"
+    let l:cmd = ":call diapp#RunFeatureFuncAndRefreshUI("
+                \ . "'feat#diapp_gprbuild#SelectGPRFile')"
     let l:menu_item_use_cur_file_as_gpr
                 \ = {'label': l:lab,
                 \ 'mode': "n",
@@ -804,29 +804,29 @@ function feat#diapp_gprbuild#UpdatedState() dict
     endif
     let self[l:com] = self[l:com]
                 \ + ["-nargs=1 -complete=file SelectGPRFile "
-                \ . ":call diapp#RunFeatureFuncAndRefreshUI('gprbuild', "
-                \ . "function('feat#diapp_gprbuild#SelectGPRFile'), "
+                \ . ":call diapp#RunFeatureFuncAndRefreshUI("
+                \ . "'feat#diapp_gprbuild#SelectGPRFile', "
                 \ . "<f-args>)"]
     let self[l:com] = self[l:com]
                 \ + ["-nargs=0 EchoGPRFile "
-                \ . ":call diapp#RunFeatureFunc('gprbuild', "
-                \ . "function('feat#diapp_gprbuild#EchoGPRFile'))"]
+                \ . ":call diapp#RunFeatureFunc("
+                \ . "'feat#diapp_gprbuild#EchoGPRFile')"]
 
     " -----------------------------------------------------
 
     let self[l:com] = self[l:com]
                 \ + ["-nargs=1 SetGPRbuildOpt "
-                \ . ":call diapp#RunFeatureFunc('gprbuild', "
-                \ . "function('feat#diapp_gprbuild#SetGPRbuildOpt'), "
+                \ . ":call diapp#RunFeatureFunc("
+                \ . "'feat#diapp_gprbuild#SetGPRbuildOpt', "
                 \ . "<f-args>)"]
     let self[l:com] = self[l:com]
                 \ + ["-nargs=0 ResetGPRbuildOpt "
-                \ . ":call diapp#RunFeatureFunc('gprbuild', "
-                \ . "function('feat#diapp_gprbuild#ResetGPRbuildOpt'))"]
+                \ . ":call diapp#RunFeatureFunc("
+                \ . "'feat#diapp_gprbuild#ResetGPRbuildOpt')"]
     let self[l:com] = self[l:com]
                 \ + ["-nargs=0 EchoGPRbuildOpt "
-                \ . ":call diapp#RunFeatureFunc('gprbuild', "
-                \ . "function('feat#diapp_gprbuild#EchoGPRbuildOpt'))"]
+                \ . ":call diapp#RunFeatureFunc("
+                \ . "'feat#diapp_gprbuild#EchoGPRbuildOpt')"]
 
     " -----------------------------------------------------
 
@@ -847,8 +847,8 @@ function feat#diapp_gprbuild#UpdatedState() dict
 
         if l:valid_gpr_candidate
             let self[l:com][-1] = self[l:com][-1]
-                        \ . ":call diapp#RunFeatureFunc('gprbuild', "
-                        \ . "function('feat#diapp_gprbuild#BuildCurGNATProj'))"
+                        \ . ":call diapp#RunFeatureFunc("
+                        \ . "'feat#diapp_gprbuild#BuildCurGNATProj')"
             let l:ena = 1
             let l:lab = s:EscapeUIString("&Build " . s:FileNameForUI())
         else
@@ -872,8 +872,8 @@ function feat#diapp_gprbuild#UpdatedState() dict
             let l:lab = s:EscapeUIString("&Compile current buffer file")
         else
             let self[l:com][-1] = self[l:com][-1]
-                        \ . ":call diapp#RunFeatureFunc('gprbuild', "
-                        \ . "function('feat#diapp_gprbuild#CompileCurFile'))"
+                        \ . ":call diapp#RunFeatureFunc("
+                        \ . "'feat#diapp_gprbuild#CompileCurFile')"
             let l:ena = 1
             let l:lab = s:EscapeUIString("&Compile " . s:FileNameForUI())
         endif

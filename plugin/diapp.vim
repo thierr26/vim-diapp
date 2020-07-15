@@ -531,17 +531,20 @@ endfunction
 " arguments (if any) as arguments) and update the feature state dictionary.
 "
 " Argument #1:
-" Feature name (key of the 'feat' item of global state dictionary 's:state').
-"
-" Argument #2:
-" "Funcref" for the function to be run.
+" Name of the feature function (like
+" "feat#diapp_<feature name>#<function name>").
 "
 " Other arguments (optional):
 " Any other arguments that need to be passed to the "feature function".
 
-function diapp#RunFeatureFunc(feat, FuRef, ...)
+function diapp#RunFeatureFunc(name, ...)
 
-    call call(a:FuRef, [s:state.feat[a:feat]] + a:000)
+    let l:feat = substitute(a:name, '^feat#diapp_\([^#]\+\)#.\+$', '\1', '')
+    execute "call call('"
+                \ . a:name
+                \ . "', [s:state.feat."
+                \ . l:feat
+                \ . "] + a:000)"
 
 endfunction
 
@@ -549,20 +552,18 @@ endfunction
 
 " Run a "feature function" (with the feature state dictionary plus extra
 " arguments (if any) as arguments), update the feature state dictionary and
-" refreshe the user interface.
+" refresh the user interface.
 "
 " Argument #1:
-" Feature name (key of the 'feat' item of global state dictionary 's:state').
-"
-" Argument #2:
-" "Funcref" for the function to be run.
+" Name of the feature function (like
+" "feat#diapp_<feature name>#<function name>").
 "
 " Other arguments (optional):
 " Any other arguments that need to be passed to the "feature function".
 
-function diapp#RunFeatureFuncAndRefreshUI(feat, FuRef, ...)
+function diapp#RunFeatureFuncAndRefreshUI(name, ...)
 
-    call call('diapp#RunFeatureFunc',[a:feat, a:FuRef] + a:000)
+    call call('diapp#RunFeatureFunc', [a:name] + a:000)
     call s:DiappRefreshUI(1)
 
 endfunction

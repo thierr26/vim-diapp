@@ -291,12 +291,12 @@ function feat#diapp_fring#UpdatedState() dict
     " -----------------------------------------------------
 
     let self[l:com] = self[l:com] + ["-nargs=0 EchoFRingCandidates "
-                \ . ":call diapp#RunFeatureFunc('fring', "
-                \ . "function('feat#diapp_fring#EchoFRingCandidates'))"]
+                \ . ":call diapp#RunFeatureFunc("
+                \ . "'feat#diapp_fring#EchoFRingCandidates')"]
 
     let self[l:com] = self[l:com] + ["-nargs=0 EchoFRingNext "
-                \ . ":call diapp#RunFeatureFunc('fring', "
-                \ . "function('feat#diapp_fring#EchoFRingNext'))"]
+                \ . ":call diapp#RunFeatureFunc("
+                \ . "'feat#diapp_fring#EchoFRingNext')"]
 
     " -----------------------------------------------------
 
