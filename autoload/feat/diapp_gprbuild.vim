@@ -356,11 +356,11 @@ endfunction
 " Return value:
 " Shell command.
 
-function s:GPRbuildShellCommand(current_state, gpr, ...)
+function s:GPRbuildShellCommand(s, gpr, ...)
 
     let l:ret = "gprbuild"
-                \ . (empty(a:current_state.gprbuild_opt) ? "" : " ")
-                \ . a:current_state.gprbuild_opt
+                \ . (empty(a:s.gprbuild_opt) ? "" : " ")
+                \ . a:s.gprbuild_opt
                 \ . (empty(a:gpr) ? "" : " -P ")
                 \ . a:gpr
                 \ . " -p -gnatb -gnatj999 -gnatef -gnatU"
@@ -397,14 +397,14 @@ endfunction
 " Argument #2 (optional):
 " Absolute or relative file name.
 
-function feat#diapp_gprbuild#SelectGPRFile(current_state, ...)
+function feat#diapp_gprbuild#SelectGPRFile(s, ...)
 
     if a:0 == 0
-        let a:current_state.gnat_project = s:FileNameForUI()
+        let a:s.gnat_project = s:FileNameForUI()
     else
         let l:f_i = s:FileInfo(a:1)
         if l:f_i.is_concrete()
-            let a:current_state.gnat_project = s:FileNameForUI(a:1)
+            let a:s.gnat_project = s:FileNameForUI(a:1)
         elseif l:f_i.kind !=? 'gnat_project'
             call diapp#WarnNothingDone("Not a GNAT project.")
         else
@@ -421,12 +421,12 @@ endfunction
 " Argument #1:
 " Current feature state dictionary.
 
-function feat#diapp_gprbuild#EchoGPRFile(current_state)
+function feat#diapp_gprbuild#EchoGPRFile(s)
 
-    if empty(a:current_state.gnat_project)
+    if empty(a:s.gnat_project)
         call diapp#Warn("No GNAT project selected")
     else
-        echo a:current_state.gnat_project
+        echo a:s.gnat_project
     endif
 
 endfunction
@@ -441,9 +441,9 @@ endfunction
 " Argument #2:
 " GPRbuild options (e.g. "-v -XBUILD_MODE=optimizations").
 
-function feat#diapp_gprbuild#SetGPRbuildOpt(current_state, options)
+function feat#diapp_gprbuild#SetGPRbuildOpt(s, options)
 
-    let a:current_state.gprbuild_opt = a:options
+    let a:s.gprbuild_opt = a:options
 
 endfunction
 
@@ -454,9 +454,9 @@ endfunction
 " Argument #1:
 " Current feature state dictionary.
 
-function feat#diapp_gprbuild#ResetGPRbuildOpt(current_state)
+function feat#diapp_gprbuild#ResetGPRbuildOpt(s)
 
-    let a:current_state.gprbuild_opt = ""
+    let a:s.gprbuild_opt = ""
 
 endfunction
 
@@ -467,12 +467,12 @@ endfunction
 " Argument #1:
 " Current feature state dictionary.
 
-function feat#diapp_gprbuild#EchoGPRbuildOpt(current_state)
+function feat#diapp_gprbuild#EchoGPRbuildOpt(s)
 
-    if empty(a:current_state.gprbuild_opt)
+    if empty(a:s.gprbuild_opt)
         call diapp#Warn("No GPRbuild options")
     else
-        echo a:current_state.gprbuild_opt
+        echo a:s.gprbuild_opt
     endif
 
 endfunction
@@ -629,10 +629,10 @@ endfunction
 " Argument #1:
 " Current feature state dictionary.
 
-function feat#diapp_gprbuild#BuildCurGNATProj(current_state)
+function feat#diapp_gprbuild#BuildCurGNATProj(s)
 
     let l:gpr = s:FileNameForUI()
-    let l:cmd = s:GPRbuildShellCommand(a:current_state, l:gpr)
+    let l:cmd = s:GPRbuildShellCommand(a:s, l:gpr)
     call s:RunGPRbuildShellCommand(l:cmd, "Build of " . l:gpr)
 
 endfunction
@@ -644,11 +644,11 @@ endfunction
 " Argument #1:
 " Current feature state dictionary.
 
-function feat#diapp_gprbuild#CompileCurFile(current_state)
+function feat#diapp_gprbuild#CompileCurFile(s)
 
     let l:src = s:FileNameForUI()
     let l:cmd = s:GPRbuildShellCommand(
-                \ a:current_state, a:current_state.gnat_project, l:src)
+                \ a:s, a:s.gnat_project, l:src)
     call s:RunGPRbuildShellCommand(l:cmd, "Compilation of " . l:src)
 
 endfunction

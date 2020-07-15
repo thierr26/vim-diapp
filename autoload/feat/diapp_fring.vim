@@ -212,16 +212,16 @@ endfunction
 " Argument #1:
 " Current feature state dictionary.
 
-function feat#diapp_fring#EchoFRingCandidates(current_state)
+function feat#diapp_fring#EchoFRingCandidates(s)
 
-    if empty(a:current_state.candidate)
+    if empty(a:s.candidate)
 
         call diapp#Warn(s:BufferBaseFileName()
                     \ . " cannot be part of a file ring")
 
     else
 
-        for k in a:current_state.candidate
+        for k in a:s.candidate
             echo s:ring.ui_label(k.scheme_index)
         endfor
 
@@ -236,16 +236,16 @@ endfunction
 " Argument #1:
 " Current feature state dictionary.
 
-function feat#diapp_fring#EchoFRingNext(current_state)
+function feat#diapp_fring#EchoFRingNext(s)
 
-    if empty(a:current_state.candidate)
+    if empty(a:s.candidate)
 
         " Let 'feat#diapp_fring#EchoFRingCandidates' issue the warning message.
-        call feat#diapp_fring#EchoFRingCandidates(a:current_state)
+        call feat#diapp_fring#EchoFRingCandidates(a:s)
 
     else
 
-        let l:f = s:ring.next_file(a:current_state.candidate)
+        let l:f = s:ring.next_file(a:s.candidate)
         if empty(l:f)
             call diapp#Warn(s:BufferBaseFileName() . " is alone in the ring")
         else
