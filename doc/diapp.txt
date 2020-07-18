@@ -5,7 +5,7 @@
 
 
 Author:      Thierry Rascle <thierr26@free.fr>
-Last change: 2020-07-05
+Last change: 2020-07-18
 
 ==============================================================================
 
@@ -14,6 +14,7 @@ CONTENTS                                                      *diapp-contents*
 
 	GENERAL INFORMATION  . . . . . . . . . . . |diapp-general-information|
 	GPRBUILD RELATED COMMANDS  . . . . . . . . |diapp-gprbuild|
+	FILE RINGS RELATED COMMANDS  . . . . . . . |diapp-file-ring|
 	CREDITS AND LICENSE  . . . . . . . . . . . |diapp-license|
 
 ==============================================================================
@@ -110,18 +111,20 @@ g:diapp_gprbuild_default_gpr_file in your |.vimrc| file. >
 :EchoGPRFile	Echo the name of the currently selected GNAT project file (if
 		any).
 
+GPRbuild options management~
+
 :SetGPRbuildOpt {options}                                    *:SetGPRbuildOpt*
 		Define options to be used in GPRbuild commands. Options
 		provided in {options} are used in addition to options that
 		Diapp unconditionally passes to GPRbuild (see
-		`:GPRbuildCompileCurFile` for more details). Example: >
+		|:GPRbuildCompileCurFile| for more details). Example: >
 
 			:SetGPRbuildOpt -eL -XBUILD=DEBUG
 <
 
                                    *g:diapp_gprbuild_default_gprbuild_options*
 		By default, no options are defined (that is the state is the
-		same that after an invocation of `:ResetGPRbuildOpt`). Set
+		same that after an invocation of |:ResetGPRbuildOpt|). Set
 		g:diapp_gprbuild_default_gprbuild_options in your |.vimrc| to
 		set options by default. Example: >
 
@@ -131,10 +134,12 @@ g:diapp_gprbuild_default_gpr_file in your |.vimrc| file. >
 
 :ResetGPRbuildOpt                                          *:ResetGPRbuildOpt*
 		Cancel the effect of any previous invocation(s) of
-		`:SetGPRbuildOpt`.
+		|:SetGPRbuildOpt|.
 
 :EchoGPRbuildOpt                                            *:EchoGPRbuildOpt*
-		Echo the options (if any) defined using `:SetGPRbuildOpt`.
+		Echo the options (if any) defined using |:SetGPRbuildOpt|.
+
+GPRbuild invocation~
 
 :GPRbuildCompileCurFile                              *:GPRbuildCompileCurFile*
 		Elaborate a GPRbuild command based on the currently edited
@@ -169,7 +174,8 @@ g:diapp_gprbuild_default_gpr_file in your |.vimrc| file. >
 		messages format (which is important to reliably populate the
 		|quickfix| list).
 
-		All changed buffers are written before executing the GPRbuild command.
+		All changed buffers are written before executing the GPRbuild
+		command.
 
 		After the command execution, a line is saved to
 		|message-history| indicating the result of the command
@@ -178,12 +184,55 @@ g:diapp_gprbuild_default_gpr_file in your |.vimrc| file. >
 		|quickfix-window|.
 
                                         *g:diapp_gprbuild_compile_cur_mapping*
-		`:GPRbuildCompileCurFile` is mapped by default to <F10>. Set
+		|:GPRbuildCompileCurFile| is mapped by default to <F10>. Set
 		variable g:diapp_gprbuild_compile_cur_mapping in your |.vimrc|
 		to map the command to another key. Example with <F4>: >
 
 			:let g:diapp_gprbuild_compile_cur_mapping="<F4>"
 <
+==============================================================================
+
+
+FILE RINGS RELATED COMMANDS                                  *diapp-file-ring*
+
+A file ring in Diapp is a short list of files and command |:A| makes it
+possible to cycle easily through those files. For example, when you're editing
+a C source file (a .c file), |:A| will open the corresponding header file (.h
+file) in the current window (only if this file exists).
+
+|:EchoAllFRing| shows all the possible kind of file rings.
+|:EchoFRingCandidates| shows the file rings the currently edited file may
+belong to. |:EchoFRingNext| shows the name of the file |:A| would open.
+
+Diapp's |:A| command has been inspired by the command with the same name in
+plugin a.vim by Mike Sharpe. See
+https://www.vim.org/scripts/script.php?script_id=31 or
+https://github.com/vim-scripts/a.vim).
+
+                                                      *g:diapp_fring_disabled*
+Set g:diapp_fring_disabled to 1 in your |.vimrc| to disable the whole set of
+commands described in this section. >
+
+	:let g:diapp_fring_disabled = 1
+<
+
+                                                                          *:A*
+:A		In the current window, change the edited file to the next file
+		in the ring (only if the currently edited file belongs to a
+		file ring and at least one of the other file(s) in the ring
+		exists). If both files are edited in different windows of the
+		current tab page, then the files are swapped in the windows.
+
+                                                               *:EchoAllFRing*
+:EchoAllFRing	List all the possible kind of file rings.
+
+:EchoFRingCandidates                                     *EchoFRingCandidates*
+		List all the file rings the currently edited file may belong
+		to.
+
+                                                               *EchoFRingNext*
+:EchoFRingNext	Echo the name of the file |:A| would open (only if this file
+		exists).
 
 ==============================================================================
 
