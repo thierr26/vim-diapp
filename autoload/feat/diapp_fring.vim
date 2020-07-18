@@ -123,27 +123,41 @@ function s:NextFileInRing(scheme_and_expr_index_list) dict
         let l:expr = self.scheme[l:k].expr[l:e_k]
         let l:group_1 = substitute(l:f, l:expr, '\1', '')
 
-        let l:next_e_k = l:e_k + 1
-        if l:next_e_k == len(self.scheme[k].expr)
-            let l:next_e_k = 0
-        endif
+        let l:done = 0
+        while !l:done
 
-        let l:actual_expr = substitute(
-                    \ self.scheme[k].expr[l:next_e_k],
-                    \ '\\(\.\\+\\)',
-                    \ l:group_1,
-                    \ '')
-                    \ . (l:sens ? '\C' : '\c')
-
-        let l:filter = s:BufferDirName() . "/*"
-        for file in glob(l:filter, 1, 1)
-            if lib#diapp_file#BaseName(file) =~# l:actual_expr
-                let l:ret = file
-                break " Early loop exit (innermost for loop).
+            let l:next_e_k = l:e_k + 1
+            if l:next_e_k == len(self.scheme[k].expr)
+                let l:next_e_k = 0
             endif
-        endfor
+
+            if l:next_e_k != l:e_k
+
+                let l:actual_expr = substitute(
+                            \ self.scheme[k].expr[l:next_e_k],
+                            \ '\\(\.\\+\\)',
+                            \ l:group_1,
+                            \ '')
+                            \ . (l:sens ? '\C' : '\c')
+
+                let l:filter = s:BufferDirName() . "/*"
+                for file in glob(l:filter, 1, 1)
+                    if lib#diapp_file#BaseName(file) =~# l:actual_expr
+                        let l:ret = file
+                        break " Early loop exit (innermost for loop).
+                    endif
+                endfor
+                if !empty(l:ret)
+                    let l:done = 1
+                endif
+
+            else
+                let l:done = 1
+            endif
+
+        endwhile
         if !empty(l:ret)
-            break " Early loop exit (for loop).
+            break " Early loop exit.
         endif
 
     endfor
