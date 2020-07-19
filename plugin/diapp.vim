@@ -578,8 +578,6 @@ augroup diapp
 
     autocmd!
 
-    " autocmd BufRead,BufNewFile *.txt :set filetype=text
-
     autocmd BufEnter * :call s:DiappRefreshUI()
     autocmd FileType * :call s:DiappRefreshUI()
 
