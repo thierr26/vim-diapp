@@ -1,11 +1,12 @@
-*diapp.txt*  Commands (hopefully) useful for software development activities
-*diapp*
+*diapp.txt* Commands (hopefully) useful for software development activities
+
+
+Author:		Thierry Rascle <thierr26@free.fr>
+For Vim:	7.0 and later
+Last change:	2020-07-19
+
 
                                DIAPP USER MANUAL
-
-
-Author:      Thierry Rascle <thierr26@free.fr>
-Last change: 2020-07-18
 
 ==============================================================================
 
@@ -29,6 +30,21 @@ Set g:loaded_diapp to 1 in your |.vimrc| to disable entirely Diapp. >
 	:let g:loaded_diapp = 1
 <
 
+Diapp installation checking~
+                                                      *:EchoDiappFeatureNames*
+Diapp's functionnalities are mostly coded in `autoload` scripts. Each of
+Diapp's autoload scripts defines a set of commands (also called a "feature").
+One defines the GPRbuild related commands, another one defines the file rings
+related commands, etc.
+
+On startup, Diapp checks the presence of the autoload scripts. If they are not
+found, then Diapp won't work at all (and a message is displayed to inform you).
+If they're found, then Diapp should work properly and the features names can
+be listed with the following command: >
+
+	:EchoDiappFeatureNames
+<
+
 Diapp commands availability~
                                                  *diapp-commands-availability*
 Diapp does not systematically refresh its user interface, based on the type of
@@ -50,12 +66,12 @@ if needed (but it shouldn't be needed).
 Diapp menus~
                                                                  *diapp-menus*
 Diapp creates menus, available to users running a version of Vim with the
-|GUI| (and |menus| not hidden of course). The absence of a menu or menu item
-means that the associated command(s) are not available because they're not
-useful at the moment. A menu item may also be present but disabled (grayed),
-which means it's not useful at the moment. In this case, an informational text
-may appear instead of the normal menu item label to indicate why it's
-disabled.
+|GUI| (and with |menus| not hidden of course). The absence of a menu or menu
+item means that the associated command(s) are not available because they're
+not useful at the moment. A menu item may also be present but disabled
+(grayed), which means it's not useful at the moment. In this case, an
+informational text may appear instead of the normal menu item label to
+indicate why it's disabled.
 
 ==============================================================================
 

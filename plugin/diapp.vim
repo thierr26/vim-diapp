@@ -282,6 +282,103 @@ endfunction
 
 " -----------------------------------------------------------------------------
 
+" Return the directories contained in a runtime directories option as a list of
+" directories.
+"
+" Argument #1:
+" Runtime directories option value (e.g. '&runtimepath' or '&packpath').
+"
+" Return value:
+" List of directories.
+
+function s:RunTimeOptDirList(opt_value)
+
+    return split(a:opt_value, ',')
+
+endfunction
+
+" -----------------------------------------------------------------------------
+
+" Return the list of Diapp's feature names, based on files found in the
+" directory provided as argument.
+"
+" Argument #1:
+" Directory to explore.
+"
+" Return value:
+" List of feature names (possibly empty).
+
+function s:FeatureListFromDir(dir)
+
+    let l:ret = []
+
+    let l:feature_file = globpath(a:dir, "**/autoload/feat/diapp_*.vim", 1, 1)
+
+    for f in l:feature_file
+        let l:ret = l:ret + [substitute(
+                    \ f,
+                    \ '^.*[\\\/]autoload[\\\/]feat[\\\/]'
+                    \ . 'diapp_\([^\.]\+\)\.vim$',
+                    \ '\1',
+                    \ 0)]
+    endfor
+
+    return l:ret
+
+endfunction
+
+" -----------------------------------------------------------------------------
+
+" Explore runtime directories until finding Diapp's feature scripts.
+"
+" Return value:
+" List of feature names.
+
+function s:FeatureList()
+
+    let l:ret = []
+
+    " List of directories in option 'runtimepath'.
+    let l:rtp_list = s:RunTimeOptDirList(&runtimepath)
+
+    " Loop over 'packpath' directories.
+    for d in l:rtp_list
+
+        let l:ret = s:FeatureListFromDir(d)
+        if !empty(l:ret)
+            return l:ret " Early return.
+        endif
+
+    endfor
+
+    " We get there if 'Diapp's feature scripts have not been found in the
+    " directories of '&runtimepath'.
+
+    " List of directories in option 'packpath' (if the option exists).
+    let l:pp_list = exists("&packpath")
+                \ ? s:RunTimeOptDirList(&packpath)
+                \ : []
+
+    " Loop over 'packpath' directories.
+    for d in l:pp_list
+
+        if index(l:rtp_list, d) == -1
+            " Current 'packpath' directory was not in 'runtimepath'.
+
+            let l:ret = s:FeatureListFromDir(d)
+            if !empty(l:ret)
+                return l:ret " Early return.
+            endif
+        endif
+
+    endfor
+
+    return l:ret
+
+endfunction
+
+" -----------------------------------------------------------------------------
+
 " If argument (current state dictionary) is provided, return it updated.
 " Otherwise return an initial state dictionary.
 "
@@ -302,13 +399,32 @@ function s:UpdatedState(...)
     if a:0 == 0
         " No state dictionary provided as argument.
 
-        " Initialize the return value with an embryonic initial state.
-        let l:s = {'feat': {'gprbuild': {},
-                    \ 'fring': {}}}
+        " Find Diapp's feature names.
+        let l:feat = s:FeatureList()
 
-        " Initialize s:skipped_update.
-        let s:skipped_update = {'gprbuild': 0,
-                    \ 'fring': 0}
+        if empty(l:feat)
+            call diapp#Warn("Diapp is not working "
+                        \ . "(feature script files not found)")
+        else
+            let l:com = "command! -nargs=0 EchoDiappFeatureNames"
+            let k = 0
+            for f in l:feat
+                let k += 1
+                let l:com .= " :echo '" . f . "'"
+                            \ . (k == len(l:feat) ? "" : " |")
+            endfor
+            execute l:com
+        endif
+
+        " Initialize state dictionary with embryonic feature state
+        " dictionaries. Also initialize 's:skipped_update'.
+        let l:s = {'feat': {}}
+        let s:skipped_update = {}
+        for f in l:feat
+            let l:s.feat[f] = {}
+            let s:skipped_update[f] = 0
+        endfor
+
     else
         " Current state dictionary provided as argument.
 
