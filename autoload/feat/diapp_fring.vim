@@ -124,9 +124,10 @@ function s:NextFileInRing(scheme_and_expr_index_list) dict
         let l:group_1 = substitute(l:f, l:expr, '\1', '')
 
         let l:done = 0
+        let l:next_e_k = l:e_k
         while !l:done
 
-            let l:next_e_k = l:e_k + 1
+            let l:next_e_k += 1
             if l:next_e_k == len(self.scheme[k].expr)
                 let l:next_e_k = 0
             endif
