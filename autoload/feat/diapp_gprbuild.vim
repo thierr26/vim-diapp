@@ -604,7 +604,7 @@ function s:RunGPRbuildShellCommand(cmd, ...)
         " There are no error or warning in the quickfix list.
 
         " Close the quickfix window.
-        cclos
+        cclose
 
     endif
 
