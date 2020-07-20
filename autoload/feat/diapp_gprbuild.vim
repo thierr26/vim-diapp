@@ -358,7 +358,7 @@ endfunction
 
 function s:GPRbuildShellCommand(s, gpr, ...)
 
-    let l:ret = "gprbuild"
+    let l:ret = a:s.lang . "gprbuild"
                 \ . (empty(a:s.gprbuild_opt) ? "" : " ")
                 \ . a:s.gprbuild_opt
                 \ . (empty(a:gpr) ? "" : " -P ")
@@ -494,7 +494,10 @@ function s:RunGPRbuildShellCommand(cmd, ...)
     " Write all changed buffers.
     wa
 
-    echo "Running " . a:cmd
+    " Remove the LANG part of the command (if any).
+    let l:cmd_no_lang = substitute(a:cmd, '^LANG=[^ ]\+ && ', '', '')
+
+    echo "Running " . l:cmd_no_lang
 
     " Run the command, capture the output and turn it to a list of lines.
     let l:cmd_output = lib#diapp_vim800func#SystemList(a:cmd)
@@ -618,7 +621,7 @@ function s:RunGPRbuildShellCommand(cmd, ...)
                 \ . " diag. message"
                 \ . (len(l:qflist) < 2 ? "" : "s")
                 \ . ") "
-                \ . a:cmd
+                \ . l:cmd_no_lang
 
 endfunction
 
@@ -692,6 +695,13 @@ function feat#diapp_gprbuild#UpdatedState() dict
     if !has_key(self, 'gprbuild_opt')
         let self.gprbuild_opt = diapp#GetFeatOpt(
                     \ 'gprbuild', self, 'default_gprbuild_options', '')
+    endif
+
+    if !has_key(self, 'lang')
+        let self.lang = diapp#GetFeatOpt('gprbuild', self, 'lang', 'C')
+        if !empty(self.lang)
+            let self.lang = "LANG=" . self.lang . " && "
+        endif
     endif
 
     " Reset the 'menu' item of the feature state dictionary before building

@@ -3,7 +3,7 @@
 
 Author:		Thierry Rascle <thierr26@free.fr>
 For Vim:	7.0 and later
-Last change:	2020-07-19
+Last change:	2020-07-20
 
 
                                DIAPP USER MANUAL
@@ -154,6 +154,17 @@ GPRbuild options management~
 
 :EchoGPRbuildOpt                                            *:EchoGPRbuildOpt*
 		Echo the options (if any) defined using |:SetGPRbuildOpt|.
+
+                                                       *g:diapp_gprbuild_lang*
+By default, Diapp sets the LANG environment variable to "C" when calling
+gprbuild. This makes sure the diagnostic messages will be properly categorized
+in the |quickfix| list. You can force another value for LANG by setting
+g:diapp_gprbuild_lang to this value in your |.vimrc|. Set
+g:diapp_gprbuild_lang to an empty value to prevent Diapp from setting LANG at
+all. >
+
+	:let g:diapp_gprbuild_lang = ""
+<
 
 GPRbuild invocation~
 
