@@ -3,7 +3,7 @@
 
 Author:		Thierry Rascle <thierr26@free.fr>
 For Vim:	7.0 and later
-Last change:	2020-07-20
+Last change:	2020-07-24
 
 
                                DIAPP USER MANUAL
@@ -16,6 +16,7 @@ CONTENTS                                                      *diapp-contents*
 	GENERAL INFORMATION  . . . . . . . . . . . |diapp-general-information|
 	GPRBUILD RELATED COMMANDS  . . . . . . . . |diapp-gprbuild|
 	FILE RINGS RELATED COMMANDS  . . . . . . . |diapp-file-ring|
+	ACTIONS ON VIM HELP FILE OPENING . . . . . |diapp-vim-help|
 	CREDITS AND LICENSE  . . . . . . . . . . . |diapp-license|
 
 ==============================================================================
@@ -261,6 +262,22 @@ commands described in this section. >
 :EchoFRingNext	Echo the name of the file |:A| would open (only if this file
 		exists).
 
+==============================================================================
+
+
+ACTIONS ON VIM HELP FILE OPENING                              *diapp-vim-help*
+
+When opening a Vim help file, an `autocommand` is set up so that `helptags` is
+run automatically when writing the buffer. The `modeline` on the last line of
+the file is also applied (only `textwidth`, `tabstop`, `softtabstop`,
+`expandtab` and `rightleft` options).
+
+                                                    *g:diapp_vimhelp_disabled*
+Set g:diapp_vimhelp_disabled to 1 in your |.vimrc| to disable the whole set of
+features described in this section. >
+
+	:let g:diapp_vimhelp_disabled = 1
+<
 ==============================================================================
 
                                                                *diapp-credits*
