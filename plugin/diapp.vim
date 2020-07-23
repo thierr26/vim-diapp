@@ -694,8 +694,7 @@ augroup diapp
 
     autocmd!
 
-    autocmd BufEnter * :call s:DiappRefreshUI()
-    autocmd FileType * :call s:DiappRefreshUI()
+    autocmd FileType,BufRead,BufEnter * :call s:DiappRefreshUI()
 
 augroup END
 
