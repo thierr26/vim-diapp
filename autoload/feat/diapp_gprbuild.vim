@@ -679,7 +679,7 @@ endfunction
 " Update the feature state dictionary. The 'disabled' item is never updated and
 " is assumed to be true.
 
-function feat#diapp_gprbuild#UpdatedState() dict
+function feat#diapp_gprbuild#UpdateState() dict
 
     if !has_key(self, 'gnat_project')
         let self.gnat_project = diapp#GetFeatOpt(

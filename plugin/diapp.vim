@@ -250,7 +250,7 @@ function s:UpdateFeatureState(feat, current_state)
 
     if !l:s.disabled && !has_key(l:s, 'update_state')
         let l:s.update_state
-                    \ = function("feat#diapp_" . a:feat . "#UpdatedState")
+                    \ = function("feat#diapp_" . a:feat . "#UpdateState")
     endif
 
     if l:s.disabled || !feat#diapp_{a:feat}#CannotSkipUpdate()
@@ -272,7 +272,7 @@ function s:UpdateFeatureState(feat, current_state)
     if l:s.disabled
         throw "Internal error: function 'feat#diapp_"
                     \ . a:feat
-                    \ . "#UpdatedState' has changed the 'disabled' item of "
+                    \ . "#UpdateState' has changed the 'disabled' item of "
                     \ . "the feature state dictionary"
     endif
 

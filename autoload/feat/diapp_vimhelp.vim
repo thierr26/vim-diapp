@@ -131,7 +131,7 @@ endfunction
 " If the currently edited file is a Vim help file, an autocommand is set up and
 " the modeline is interpreted.
 
-function feat#diapp_vimhelp#UpdatedState() dict
+function feat#diapp_vimhelp#UpdateState() dict
 
     let l:modeline_opt_list = s:VimHelpModeline()
 

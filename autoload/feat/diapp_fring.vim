@@ -405,7 +405,7 @@ endfunction
 " Update the feature state dictionary. The 'disabled' item is never updated and
 " is assumed to be true.
 
-function feat#diapp_fring#UpdatedState() dict
+function feat#diapp_fring#UpdateState() dict
 
     if !exists("s:ring")
         call s:Initialize()
