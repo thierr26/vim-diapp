@@ -10,6 +10,7 @@ if version >= 800
     let s:strcharpart_ref = function("strcharpart")
     let s:reltimefloat_ref = function("reltimefloat")
     let s:systemlist_ref = function("systemlist")
+    let s:globpath_ref = function("globpath")
 
 else
     " Vim version is below 8.0.
@@ -25,6 +26,15 @@ else
         return split(call("system", a:000), '\n')
     endfunction
     let s:systemlist_ref = function("s:systemlist")
+
+    function s:globpath(...)
+        if a:0 > 3 && a:4
+            return split(call("globpath", a:000[0:2]), '\n')
+        else
+            return call("globpath", a:000[0:2])
+        endif
+    endfunction
+    let s:globpath_ref = function("s:globpath")
 
 endif
 
@@ -47,6 +57,14 @@ endfunction
 " To be used like function 'systemlist' in Vim 8.
 function lib#diapp_vim800func#SystemList(...)
     return call(s:systemlist_ref, a:000)
+endfunction
+
+" -----------------------------------------------------------------------------
+
+" To be used like function 'globpath' in Vim 8. If Vim version is below 8.0
+" then the 5th argument (alllinks) is ignored.
+function lib#diapp_vim800func#GlobPath(...)
+    return call(s:globpath_ref, a:000)
 endfunction
 
 " -----------------------------------------------------------------------------

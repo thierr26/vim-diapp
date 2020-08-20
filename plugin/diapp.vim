@@ -312,7 +312,8 @@ function s:FeatureListFromDir(dir)
 
     let l:ret = []
 
-    let l:feature_file = globpath(a:dir, "**/autoload/feat/diapp_*.vim", 1, 1)
+    let l:feature_file = lib#diapp_vim800func#GlobPath(
+                \ a:dir, "**/autoload/feat/diapp_*.vim", 1, 1)
 
     for f in l:feature_file
         let l:ret = l:ret + [substitute(
