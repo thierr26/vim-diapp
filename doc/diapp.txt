@@ -254,11 +254,11 @@ commands described in this section. >
                                                                *:EchoAllFRing*
 :EchoAllFRing	List all the possible kind of file rings.
 
-:EchoFRingCandidates                                     *EchoFRingCandidates*
+:EchoFRingCandidates                                    *:EchoFRingCandidates*
 		List all the file rings the currently edited file may belong
 		to.
 
-                                                               *EchoFRingNext*
+                                                              *:EchoFRingNext*
 :EchoFRingNext	Echo the name of the file |:A| would open (only if this file
 		exists).
 
