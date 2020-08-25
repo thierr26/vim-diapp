@@ -123,20 +123,47 @@ endfunction
 
 " -----------------------------------------------------------------------------
 
+" Toggle the filetype option from empty to "help" (or conversely) for the
+" currently edited file. Issue an "unavailable command" if the filetype option
+" is neither empty nor "help".
+
+function feat#diapp_vimhelp#ToggleFileType()
+
+    if empty(&filetype)
+        let &filetype = "help"
+    elseif &filetype == "help"
+        let &filetype = ""
+    else
+        call diapp#WarnUnavlCom(
+                    \ "filetype option is neither empty nor \"help\"")
+    endif
+
+endfunction
+
+" -----------------------------------------------------------------------------
+
 " Update the feature state dictionary. The 'disabled' item is never updated and
 " is assumed to be true.
-"
-" The feature state dictionary is not actually changed.
 "
 " If the currently edited file is a Vim help file, an autocommand is set up and
 " the modeline is interpreted.
 
 function feat#diapp_vimhelp#UpdateState() dict
 
+    let l:com = diapp#FeatStateKeyCom()
+    let self[l:com] = []
+
     let l:modeline_opt_list = s:VimHelpModeline()
 
     if !empty(l:modeline_opt_list)
         " The currently edited file is a Vim help file.
+
+        " -----------------------------------------------------
+
+        let self[l:com] = self[l:com] + ["-nargs=0 FT "
+                    \ . ":call feat#diapp_vimhelp#ToggleFileType()"]
+
+        " -----------------------------------------------------
 
         " Set up an autocommand to update tags on buffer write.
         execute "autocmd diapp BufWritePost "
