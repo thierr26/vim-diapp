@@ -64,6 +64,21 @@ endfunction
 
 " -----------------------------------------------------------------------------
 
+" Issue a warning message.
+"
+" Argument #1:
+" Warning message.
+
+function diapp#Warn(msg)
+
+    echohl WarningMsg
+    echo a:msg
+    echohl None
+
+endfunction
+
+" -----------------------------------------------------------------------------
+
 " Return the value of a feature option, that is the value of global variable
 " 'g:diapp_<feat>_<id>' or <default> if the global variable does not exist.
 "
@@ -104,12 +119,10 @@ function diapp#GetFeatOpt(feat, current_state, id, default)
                     \ 'warning_issued': 0}
     elseif a:current_state.option[a:id].value !=# l:desired_value
                 \ && !a:current_state.option[a:id].warning_issued
-        echohl WarningMsg
-        echomsg "You have set or changed variable '"
+        call diapp#Warn("You have set or changed variable '"
                     \ . l:identifier
                     \ . "' but it's too late to take the change into account. "
-                    \ . "Set the variable on Vim startup using a vimrc file."
-        echohl None
+                    \ . "Set the variable on Vim startup using a vimrc file.")
         let a:current_state.option[a:id].warning_issued = 1
     endif
 
@@ -126,10 +139,8 @@ endfunction
 
 function diapp#WarnUnavlCom(...)
 
-    echohl WarningMsg
-    echo "Command currently unavailable"
-                \ . (a:0 > 0 ? " (" . a:1 . ")" : "")
-    echohl None
+    call diapp#Warn("Command currently unavailable"
+                \ . (a:0 > 0 ? " (" . a:1 . ")" : ""))
 
 endfunction
 
@@ -142,24 +153,7 @@ endfunction
 
 function diapp#WarnNothingDone(msg)
 
-    echohl WarningMsg
-    echo a:msg . " Nothing done."
-    echohl None
-
-endfunction
-
-" -----------------------------------------------------------------------------
-
-" Issue a warning message.
-"
-" Argument #1:
-" Warning message.
-
-function diapp#Warn(msg)
-
-    echohl WarningMsg
-    echo a:msg
-    echohl None
+    call diapp#Warn(a:msg . " Nothing done.")
 
 endfunction
 
@@ -232,15 +226,13 @@ function s:UpdateFeatureState(feat, current_state)
         if !l:s.disabled
                     \ && l:user_desired_disabled_item
                     \ && !l:s.no_disabling_warning_issued
-            echohl WarningMsg
-            echomsg "You have set flag 'g:diapp_"
+            call diapp#Warn("You have set flag 'g:diapp_"
                         \ . a:feat
                         \ . "_disabled' to a falsy value but it's too late to "
                         \ . "disable feature '"
                         \ . a:feat
                         \ . "'. Set the flag on Vim startup using a vimrc "
-                        \ . "file."
-            echohl None
+                        \ . "file.")
             let l:s.no_disabling_warning_issued = 1
         elseif l:s.disabled
             let l:s.disabled = l:user_desired_disabled_item
