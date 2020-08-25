@@ -138,9 +138,6 @@ function feat#diapp_vimhelp#UpdateState() dict
     if !empty(l:modeline_opt_list)
         " The currently edited file is a Vim help file.
 
-        " Directory containing the currently edited file.
-        let l:doc_dir = lib#diapp_file#Dir(expand('%'))
-
         " Set up an autocommand to update tags on buffer write.
         execute "autocmd diapp BufWritePost "
                     \ . expand('%')
