@@ -155,15 +155,10 @@ function feat#diapp_vimhelp#UpdateState() dict
 
     let l:modeline_opt_list = s:VimHelpModeline()
 
-    if !empty(l:modeline_opt_list)
-        " The currently edited file is a Vim help file.
+    " Truthy if the currently edited file is a Vim help file.
+    let l:cur_file_is_help_file = !empty(l:modeline_opt_list)
 
-        " -----------------------------------------------------
-
-        let self[l:com] = self[l:com] + ["-nargs=0 FT "
-                    \ . ":call feat#diapp_vimhelp#ToggleFileType()"]
-
-        " -----------------------------------------------------
+    if l:cur_file_is_help_file
 
         " Set up an autocommand to update tags on buffer write.
         execute "autocmd diapp BufWritePost "
@@ -175,7 +170,17 @@ function feat#diapp_vimhelp#UpdateState() dict
         for c in l:modeline_opt_list
             execute c
         endfor
+
     endif
+
+    " -----------------------------------------------------
+
+    if l:cur_file_is_help_file
+        let self[l:com] = self[l:com] + ["-nargs=0 FT "
+                    \ . ":call feat#diapp_vimhelp#ToggleFileType()"]
+    endif
+
+    " -----------------------------------------------------
 
 endfunction
 
