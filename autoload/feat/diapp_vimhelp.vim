@@ -187,6 +187,16 @@ function feat#diapp_vimhelp#UpdateState() dict
 
     " -----------------------------------------------------
 
+    let l:com_head = "-nargs=* AF "
+    if l:cur_file_is_help_file
+        let self[l:com] = self[l:com] + [l:com_head
+                    \ . ":call lib#diapp_autofill#AutoFill(' .', <f-args>)"]
+    else
+        let self[l:com] = self[l:com] + [l:com_head . l:wuc]
+    endif
+
+    " -----------------------------------------------------
+
 endfunction
 
 " -----------------------------------------------------------------------------

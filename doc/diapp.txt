@@ -74,6 +74,40 @@ not useful at the moment. A menu item may also be present but disabled
 informational text may appear instead of the normal menu item label to
 indicate why it's disabled.
 
+:AF command ("auto fill")~
+                                                             *diapp-auto-fill*
+                                                                         *:AF*
+When available, and if provided with 0, 1 or 2 valid arguments, the `:AF`
+command writes after the cursor (like |a|) a pattern as many times as needed
+to obtain a line of a given length. The last occurrence of the pattern may be
+truncated.
+
+The line length is by default the value of 'textwidth' but a specific line
+length can be provided as argument.
+
+If no pattern is provided as argument, then the pattern defaults to the
+character under the cursor if the current line is not empty or to a string
+which depends on the file type. See:
+- |diapp-gprbuild-auto-fill|
+- |diapp-vimhelp-auto-fill|
+
+Example #1 - use the default pattern and the default line length: >
+
+	:AF
+<
+
+Example #2 - provide a pattern as argument (note the escaping of the space
+character): >
+
+	:AF \ .
+<
+
+Example #3 - provide both a pattern and a line length as argument (the order
+of the arguments is not significant): >
+
+	:AF \ . 50
+<
+
 ==============================================================================
 
 
@@ -218,6 +252,11 @@ GPRbuild invocation~
 
 			:let g:diapp_gprbuild_compile_cur_mapping="<F4>"
 <
+
+                                                    *diapp-gprbuild-auto-fill*
+For files of type "ada", "c", "cpp" or "fortran", the default pattern for the
+|:AF| command is the hyphen ("-").
+
 ==============================================================================
 
 
@@ -281,7 +320,11 @@ features described in this section. >
 
                                                                          *:FT*
 :FT		Toggle the filetype option from empty to "help" (or
-		conversely) for the currently edited help file.
+		conversely) for the currently edited Vim help file.
+
+                                                     *diapp-vimhelp-auto-fill*
+For Vim help files, the default pattern for the |:AF| command is a space
+followed by a dot (" .").
 
 ==============================================================================
 

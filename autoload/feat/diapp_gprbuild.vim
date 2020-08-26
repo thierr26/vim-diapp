@@ -905,6 +905,11 @@ function feat#diapp_gprbuild#UpdateState() dict
 
     " -----------------------------------------------------
 
+    let self[l:com] = self[l:com] + ["-nargs=* AF "
+                \ . ":call lib#diapp_autofill#AutoFill('-', <f-args>)"]
+
+    " -----------------------------------------------------
+
 endfunction
 
 " -----------------------------------------------------------------------------
