@@ -16,7 +16,7 @@ CONTENTS                                                      *diapp-contents*
 	GENERAL INFORMATION  . . . . . . . . . . . |diapp-general-information|
 	GPRBUILD RELATED COMMANDS  . . . . . . . . |diapp-gprbuild|
 	FILE RINGS RELATED COMMANDS  . . . . . . . |diapp-file-ring|
-	VIM HELP FILE RELATED ACTIONS AND COMMANDS |diapp-vim-help|
+	VIM HELP FILE RELATED ACTIONS AND COMMANDS |diapp-vimhelp|
 	CREDITS AND LICENSE  . . . . . . . . . . . |diapp-license|
 
 ==============================================================================
@@ -265,7 +265,7 @@ commands described in this section. >
 ==============================================================================
 
 
-VIM HELP FILE RELATED ACTIONS AND COMMANDS                    *diapp-vim-help*
+VIM HELP FILE RELATED ACTIONS AND COMMANDS                     *diapp-vimhelp*
 
 When opening a Vim help file, an `autocommand` is set up so that `helptags` is
 run automatically when writing the buffer. The `modeline` on the last line of
