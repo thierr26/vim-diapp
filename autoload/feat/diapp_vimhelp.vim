@@ -173,11 +173,16 @@ function feat#diapp_vimhelp#UpdateState() dict
 
     endif
 
+    let l:wuc = ":call diapp#WarnUnavlCom('current file is not a help file')"
+
     " -----------------------------------------------------
 
+    let l:com_head = "-nargs=0 FT "
     if l:cur_file_is_help_file
-        let self[l:com] = self[l:com] + ["-nargs=0 FT "
+        let self[l:com] = self[l:com] + [l:com_head
                     \ . ":call feat#diapp_vimhelp#ToggleFileType()"]
+    else
+        let self[l:com] = self[l:com] + [l:com_head . l:wuc]
     endif
 
     " -----------------------------------------------------
