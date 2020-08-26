@@ -575,6 +575,24 @@ function s:DiappRefreshUI(...)
     " (to make sure the 'b:diapp_refresh_date', 's:diapp_refresh_count' and
     " 'b:diapp_refresh_count' update is done at the end).
 
+    " Delete the user-defined commands.
+    let l:com = diapp#FeatStateKeyCom()
+    if exists('s:user_comm_defined')
+        for k in keys(s:state.feat)
+            if s:user_comm_defined[k]
+                for comm in s:state.feat[k][l:com]
+                    let l:com_name = comm
+                    while l:com_name =~ '^ *-'
+                        let l:com_name = substitute(l:com_name,
+                                    \ '^ *-[^ ]\+ *', '', '')
+                    endwhile
+                    let l:com_name = substitute(l:com_name, ' .\+$', '', '')
+                    execute "delcommand " . l:com_name
+                endfor
+            endif
+        endfor
+    endif
+
     " Update the state structure.
     let s:state = s:UpdatedState(s:state)
 
@@ -600,11 +618,13 @@ function s:DiappRefreshUI(...)
     endif
 
     " Refresh the user commands.
-    let l:com = diapp#FeatStateKeyCom()
+    let s:user_comm_defined = deepcopy(s:state.feat)
     for k in keys(s:state.feat)
+        let s:user_comm_defined[k] = 0
         if !s:state.feat[k].disabled
                     \ && !s:skipped_update[k]
                     \ && has_key(s:state.feat[k], l:com)
+            let s:user_comm_defined[k] = 1
             for comm in s:state.feat[k][l:com]
                 execute "command! " . comm
             endfor
