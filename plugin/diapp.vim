@@ -185,6 +185,19 @@ endfunction
 
 " -----------------------------------------------------------------------------
 
+" Key for the "map" item of a feature state.
+"
+" Return value:
+" Key for the "map" item of a feature state.
+
+function diapp#FeatStateKeyMap()
+
+    return 'map'
+
+endfunction
+
+" -----------------------------------------------------------------------------
+
 " Return an updated feature state dictionary. The update operation includes
 " (and even starts with) the update of the 'disabled' item based on the global
 " flag 'g:diapp_<feature name>_disabled'. If the global flag does not exist,
@@ -593,6 +606,47 @@ function s:DiappRefreshUI(...)
         endfor
     endif
 
+    " Undo the user-defined mappings.
+    let l:map = diapp#FeatStateKeyMap()
+    if exists('s:user_map_defined')
+        for k in keys(s:state.feat)
+            if s:user_map_defined[k]
+                for comm in s:state.feat[k][l:map]
+
+                    let l:key = substitute(comm,
+                                \ '^[^ ]\+ \+\([^ ]\+\) .*$', '\1', '')
+
+                    let l:comm2 = comm[0:1]
+
+                    if l:comm2 ==# "ma" || l:comm2 ==# "no"
+                        let l:ucomm = "unmap"
+                    elseif l:comm2 ==# "nm" || l:comm2 ==# "nn"
+                        let l:ucomm = "nunmap"
+                    elseif l:comm2 ==# "vm" || l:comm2 ==# "vn"
+                        let l:ucomm = "vunmap"
+                    elseif l:comm2 ==# "xm" || l:comm2 ==# "xn"
+                        let l:ucomm = "xunmap"
+                    elseif l:comm2 ==# "sm" || l:comm2 ==# "sn"
+                        let l:ucomm = "sunmap"
+                    elseif l:comm2 ==# "om" || l:comm2 ==# "on"
+                        let l:ucomm = "ounmap"
+                    elseif l:comm2 ==# "im" || l:comm2 ==# "in"
+                        let l:ucomm = "iunmap"
+                    elseif l:comm2 ==# "lm" || l:comm2 ==# "ln"
+                        let l:ucomm = "lunmap"
+                    elseif l:comm2 ==# "cm" || l:comm2 ==# "cn"
+                        let l:ucomm = "cunmap"
+                    elseif l:comm2 ==# "tm" || l:comm2 ==# "tn"
+                        let l:ucomm = "tunmap"
+                    endif
+
+                    execute l:ucomm . " " . l:key
+
+                endfor
+            endif
+        endfor
+    endif
+
     " Update the state structure.
     let s:state = s:UpdatedState(s:state)
 
@@ -627,6 +681,20 @@ function s:DiappRefreshUI(...)
             let s:user_comm_defined[k] = 1
             for comm in s:state.feat[k][l:com]
                 execute "command! " . comm
+            endfor
+        endif
+    endfor
+
+    " Refresh the mappings.
+    let s:user_map_defined = deepcopy(s:state.feat)
+    for k in keys(s:state.feat)
+        let s:user_map_defined[k] = 0
+        if !s:state.feat[k].disabled
+                    \ && !s:skipped_update[k]
+                    \ && has_key(s:state.feat[k], l:map)
+            let s:user_map_defined[k] = 1
+            for comm in s:state.feat[k][l:map]
+                execute comm
             endfor
         endif
     endfor

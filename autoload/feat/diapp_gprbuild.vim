@@ -712,6 +712,9 @@ function feat#diapp_gprbuild#UpdateState() dict
     let l:com = diapp#FeatStateKeyCom()
     let self[l:com] = []
 
+    let l:map = diapp#FeatStateKeyMap()
+    let self[l:map] = []
+
     let l:gpr_candidate = s:FileNameForUI()
     let l:ada_file_info = s:FileInfo(l:gpr_candidate)
 
@@ -888,19 +891,19 @@ function feat#diapp_gprbuild#UpdateState() dict
         endif
     endif
 
-    let l:map = diapp#GetFeatOpt(
-                \ 'gprbuild', self, 'compile_cur_mapping', '<F10>')
     let l:cmd = ":GPRbuildCompileCurFile<CR>"
+    let self[l:map] = self[l:map] + [diapp#GetFeatOpt(
+                \ 'gprbuild', self, 'compile_cur_mapping', '<F10>')]
     let l:menu_item_compile_cur_file
                 \ = {'label': l:lab,
                 \ 'mode': "n",
                 \ 'command': l:cmd,
                 \ 'enabled': l:ena,
-                \ 'mapping': l:map}
+                \ 'mapping': self[l:map][-1]}
     let self[l:menu].sub
         \ = self[l:menu].sub + [l:menu_item_compile_cur_file]
 
-    execute "nnoremap " . l:map . " " . l:cmd
+    let self[l:map][-1] = "nnoremap " . self[l:map][-1] . " " . l:cmd
 
     " -----------------------------------------------------
 
