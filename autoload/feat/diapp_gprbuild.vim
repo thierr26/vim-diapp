@@ -706,12 +706,11 @@ function feat#diapp_gprbuild#UpdateState() dict
 
     " Reset the 'menu' item of the feature state dictionary before building
     " each menu item.
+    let l:menu = diapp#FeatStateKeyMenu()
+    let self[l:menu] = {'label': "&GPRbuild", 'sub': []}
 
     let l:com = diapp#FeatStateKeyCom()
     let self[l:com] = []
-
-    let l:menu = diapp#FeatStateKeyMenu()
-    let self[l:menu] = {'label': "&GPRbuild", 'sub': []}
 
     let l:gpr_candidate = s:FileNameForUI()
     let l:ada_file_info = s:FileInfo(l:gpr_candidate)
