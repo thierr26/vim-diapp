@@ -501,6 +501,8 @@ function s:RunGPRbuildShellCommand(cmd, ...)
 
     " Run the command, capture the output and turn it to a list of lines.
     let l:cmd_output = lib#diapp_vim800func#SystemList(a:cmd)
+    let l:shell_error = v:shell_error
+    let l:passed = (l:shell_error == 0)
 
     let l:qflist = []
 
@@ -620,16 +622,20 @@ function s:RunGPRbuildShellCommand(cmd, ...)
     endif
 
     redraw
+    if !l:passed
+        echohl WarningMsg
+    endif
     echomsg "("
-                \ . (v:shell_error == 0
+                \ . (l:passed
                 \ ? "Passed"
-                \ : "Failed [exit status " . v:shell_error . "]")
+                \ : "Failed [exit status " . l:shell_error . "]")
                 \ . ", "
                 \ . (empty(l:qflist) ? "no" : len(l:qflist))
                 \ . " diag. message"
                 \ . (len(l:qflist) < 2 ? "" : "s")
                 \ . ") "
                 \ . l:cmd_no_lang
+    echohl None
 
 endfunction
 
