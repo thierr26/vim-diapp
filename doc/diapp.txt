@@ -240,10 +240,20 @@ GPRbuild invocation~
 		command.
 
 		After the command execution, a line is saved to
-		|message-history| indicating the result of the command
-		("Passed" if it terminated with exit status 0 or "Failed" with
-		exit status value) and the count of diagnostic messages in the
-		|quickfix-window|.
+		|message-history| (using |echomsg|) indicating the result of
+		the command ("Passed" if it terminated with exit status 0 or
+		"Failed" with exit status value) and the count of diagnostic
+		messages in the |quickfix-window|.
+
+                                                   *g:diapp_gprbuild_comm_msg*
+		You can avoid repeated calls to |echomsg| by setting
+		g:diapp_gprbuild_comm_msg to 0 in your |.vimrc|: >
+
+			:let g:diapp_gprbuild_comm_msg=0
+<
+
+		This causes |echomsg| to be called only if the GPRbuild
+		command is different from the previously run GPRbuild command.
 
                                         *g:diapp_gprbuild_compile_cur_mapping*
 		|:GPRbuildCompileCurFile| is mapped by default to <F10> (in

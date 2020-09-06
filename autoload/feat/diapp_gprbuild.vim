@@ -484,12 +484,15 @@ endfunction
 " window (or close it if there's no diagnostic message to show).
 "
 " Argument #1:
+" Current feature state dictionary.
+"
+" Argument #2:
 " Shell command, supposed to be an output of 's:GPRbuildShellCommand'.
 "
-" Argument #2 (optional):
+" Argument #3 (optional):
 " Quickfix window status line.
 
-function s:RunGPRbuildShellCommand(cmd, ...)
+function s:RunGPRbuildShellCommand(s, cmd, ...)
 
     " Write all changed buffers.
     wa
@@ -623,20 +626,25 @@ function s:RunGPRbuildShellCommand(cmd, ...)
     endif
 
     redraw
-    if !l:passed
-        echohl WarningMsg
+    if !exists('s:prev_cmd_no_lang')
+                \ || s:prev_cmd_no_lang !=# l:cmd_no_lang
+                \ || a:s.issue_all_comm_msg
+        if !l:passed
+            echohl WarningMsg
+        endif
+        echomsg "("
+                    \ . (l:passed
+                    \ ? "Passed"
+                    \ : "Failed [exit status " . l:shell_error . "]")
+                    \ . ", "
+                    \ . (empty(l:qflist) ? "no" : len(l:qflist))
+                    \ . " diag. message"
+                    \ . (len(l:qflist) < 2 ? "" : "s")
+                    \ . ") "
+                    \ . l:cmd_no_lang
+        echohl None
+        let s:prev_cmd_no_lang = l:cmd_no_lang
     endif
-    echomsg "("
-                \ . (l:passed
-                \ ? "Passed"
-                \ : "Failed [exit status " . l:shell_error . "]")
-                \ . ", "
-                \ . (empty(l:qflist) ? "no" : len(l:qflist))
-                \ . " diag. message"
-                \ . (len(l:qflist) < 2 ? "" : "s")
-                \ . ") "
-                \ . l:cmd_no_lang
-    echohl None
 
 endfunction
 
@@ -651,7 +659,7 @@ function feat#diapp_gprbuild#BuildCurGNATProj(s)
 
     let l:gpr = s:FileNameForUI()
     let l:cmd = s:GPRbuildShellCommand(a:s, l:gpr)
-    call s:RunGPRbuildShellCommand(l:cmd, "Build of " . l:gpr)
+    call s:RunGPRbuildShellCommand(a:s, l:cmd, "Build of " . l:gpr)
 
 endfunction
 
@@ -667,7 +675,7 @@ function feat#diapp_gprbuild#CompileCurFile(s)
     let l:src = s:FileNameForUI()
     let l:cmd = s:GPRbuildShellCommand(
                 \ a:s, a:s.gnat_project, l:src)
-    call s:RunGPRbuildShellCommand(l:cmd, "Compil. of " . l:src)
+    call s:RunGPRbuildShellCommand(a:s, l:cmd, "Compil. of " . l:src)
 
 endfunction
 
@@ -719,6 +727,9 @@ function feat#diapp_gprbuild#UpdateState() dict
             let self.lang = "LANG=" . self.lang . " && "
         endif
     endif
+
+    let self.issue_all_comm_msg = diapp#GetFeatOpt(
+                \ 'gprbuild', self, 'comm_msg', '1')
 
     " Reset the 'menu' item of the feature state dictionary before building
     " each menu item.
