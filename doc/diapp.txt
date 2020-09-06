@@ -246,9 +246,10 @@ GPRbuild invocation~
 		|quickfix-window|.
 
                                         *g:diapp_gprbuild_compile_cur_mapping*
-		|:GPRbuildCompileCurFile| is mapped by default to <F10>. Set
-		variable g:diapp_gprbuild_compile_cur_mapping in your |.vimrc|
-		to map the command to another key. Example with <F4>: >
+		|:GPRbuildCompileCurFile| is mapped by default to <F10> (in
+		both normal and insert mode). Set variable
+		g:diapp_gprbuild_compile_cur_mapping in your |.vimrc| to map
+		the command to another key. Example with <F4>: >
 
 			:let g:diapp_gprbuild_compile_cur_mapping="<F4>"
 <

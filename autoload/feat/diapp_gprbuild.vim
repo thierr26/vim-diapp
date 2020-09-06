@@ -900,18 +900,19 @@ function feat#diapp_gprbuild#UpdateState() dict
     endif
 
     let l:cmd = ":GPRbuildCompileCurFile<CR>"
-    let self[l:map] = self[l:map] + [diapp#GetFeatOpt(
-                \ 'gprbuild', self, 'compile_cur_mapping', '<F10>')]
+    let l:key = diapp#GetFeatOpt(
+                \ 'gprbuild', self, 'compile_cur_mapping', '<F10>')
     let l:menu_item_compile_cur_file
                 \ = {'label': l:lab,
                 \ 'mode': "n",
                 \ 'command': l:cmd,
                 \ 'enabled': l:ena,
-                \ 'mapping': self[l:map][-1]}
+                \ 'mapping': l:key}
     let self[l:menu].sub
         \ = self[l:menu].sub + [l:menu_item_compile_cur_file]
 
-    let self[l:map][-1] = "nnoremap " . self[l:map][-1] . " " . l:cmd
+    let self[l:map] = self[l:map] + ["nnoremap " . l:key . " " . l:cmd]
+    let self[l:map] = self[l:map] + ["inoremap " . l:key . " <ESC>" . l:cmd]
 
     " -----------------------------------------------------
 
