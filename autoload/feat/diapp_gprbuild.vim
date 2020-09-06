@@ -609,6 +609,14 @@ function s:RunGPRbuildShellCommand(cmd, ...)
         " Close the quickfix window.
         cclose
 
+        " Do as if we were entering the buffer.
+        " CAVT: Without that, the user-defined commands and mappings are lost.
+        " This may be because 'setqflist' makes us enter the quickfix list
+        " buffer, which of course has '&filetype' set to something else than
+        " "ada", resulting in the user-defined commands and mappings being
+        " removed. <2020-09-06>
+        doautocmd diapp BufEnter
+
     endif
 
     redraw
