@@ -712,8 +712,9 @@ function feat#diapp_gprbuild#UpdateState() dict
                     \ 'gprbuild', self, 'default_gprbuild_options', '')
     endif
 
+    let l:lang_opt = diapp#GetFeatOpt('gprbuild', self, 'lang', 'C')
     if !has_key(self, 'lang')
-        let self.lang = diapp#GetFeatOpt('gprbuild', self, 'lang', 'C')
+        let self.lang = l:lang_opt
         if !empty(self.lang)
             let self.lang = "LANG=" . self.lang . " && "
         endif
