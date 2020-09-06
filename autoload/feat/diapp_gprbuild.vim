@@ -599,7 +599,8 @@ function s:RunGPRbuildShellCommand(cmd, ...)
         if a:0 > 0
             " Optional argument provided.
 
-            execute "setlocal statusline=" . s:EscapeUIString(a:1)
+            execute "setlocal statusline="
+                        \ . s:EscapeUIString("[" . len(l:qflist) . "] " . a:1)
         endif
 
         " Wrap lines longer than the width of the window.
@@ -666,7 +667,7 @@ function feat#diapp_gprbuild#CompileCurFile(s)
     let l:src = s:FileNameForUI()
     let l:cmd = s:GPRbuildShellCommand(
                 \ a:s, a:s.gnat_project, l:src)
-    call s:RunGPRbuildShellCommand(l:cmd, "Compilation of " . l:src)
+    call s:RunGPRbuildShellCommand(l:cmd, "Compil. of " . l:src)
 
 endfunction
 
