@@ -603,7 +603,8 @@ function s:RunGPRbuildShellCommand(s, cmd, ...)
             " Optional argument provided.
 
             execute "setlocal statusline="
-                        \ . s:EscapeUIString("[" . len(l:qflist) . "] " . a:1)
+                        \ . s:EscapeUIString(l:shell_error
+                        \ . "[" . len(l:qflist) . "] " . a:1)
         endif
 
         " Wrap lines longer than the width of the window.
