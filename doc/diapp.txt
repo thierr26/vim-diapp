@@ -264,6 +264,11 @@ GPRbuild invocation~
 			:let g:diapp_gprbuild_compile_cur_mapping="<F4>"
 <
 
+Last GPRbuild command~
+
+:EchoLastGPRbuildCommand                            *:EchoLastGPRbuildCommand*
+		Echo the last GPRbuild command run (if any).
+
                                                     *diapp-gprbuild-auto-fill*
 For files of type "ada", "c", "cpp" or "fortran", the default pattern for the
 |:AF| command is the hyphen ("-").

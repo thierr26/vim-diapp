@@ -779,6 +779,11 @@ augroup diapp
 
 augroup END
 
+" Define permanent commands.
+command -nargs=0 EchoLastGPRbuildCommand
+            \ :call diapp#RunFeatureFunc(
+            \ 'feat#diapp_gprbuild#EchoLastCommand')
+
 " -----------------------------------------------------------------------------
 
 " Restore 'compatible-option' value.

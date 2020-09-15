@@ -627,9 +627,9 @@ function s:RunGPRbuildShellCommand(s, cmd, ...)
     endif
 
     redraw
-    if !exists('s:prev_cmd_no_lang')
-                \ || s:prev_cmd_no_lang !=# l:cmd_no_lang
-                \ || a:s.issue_all_comm_msg
+    if a:s.issue_all_comm_msg
+                \ || !has_key(a:s, 'prev_cmd_no_lang')
+                \ || a:s.prev_cmd_no_lang !=# l:cmd_no_lang
         if !l:passed
             echohl WarningMsg
         endif
@@ -644,7 +644,7 @@ function s:RunGPRbuildShellCommand(s, cmd, ...)
                     \ . ") "
                     \ . l:cmd_no_lang
         echohl None
-        let s:prev_cmd_no_lang = l:cmd_no_lang
+        let a:s.prev_cmd_no_lang = l:cmd_no_lang
     endif
 
 endfunction
@@ -677,6 +677,23 @@ function feat#diapp_gprbuild#CompileCurFile(s)
     let l:cmd = s:GPRbuildShellCommand(
                 \ a:s, a:s.gnat_project, l:src)
     call s:RunGPRbuildShellCommand(a:s, l:cmd, "Compil. of " . l:src)
+
+endfunction
+
+" -----------------------------------------------------------------------------
+
+" Echo last GPRbuild command run (if applicable).
+"
+" Argument #1:
+" Current feature state dictionary.
+
+function feat#diapp_gprbuild#EchoLastCommand(s)
+
+    if !has_key(a:s, 'prev_cmd_no_lang')
+        call diapp#WarnUnavlCom("no GPRbuild command run yet")
+    else
+        echo a:s.prev_cmd_no_lang
+    endif
 
 endfunction
 
