@@ -887,8 +887,7 @@ function feat#diapp_gprbuild#UpdateState() dict
 
     " -----------------------------------------------------
 
-    let self[l:com] = self[l:com]
-                \ + ["-nargs=0 GPRbuildCompileCurFile "]
+    let self[l:com] = self[l:com] + ["-nargs=0 GPRbuildCompileCurFile "]
 
     let l:no_gpr_selected_arg
                 \ = "'" . substitute(
