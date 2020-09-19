@@ -682,6 +682,39 @@ endfunction
 
 " -----------------------------------------------------------------------------
 
+" Compile current Ada unit.
+"
+" Argument #1:
+" Current feature state dictionary.
+
+function feat#diapp_gprbuild#CompileCurAdaUnit(s)
+
+    let l:src = s:FileNameForUI()
+    let l:ext = "." . lib#diapp_file#Ext(l:src)
+
+    if l:ext ==? ".ads"
+        " Current file is an Ada specification.
+
+        " The associated body (if any) has the same file name, but with final
+        " "s" substituted with "b".
+        let l:body_src = substitute(l:src, 's$', 'b', '')
+
+        if findfile(l:body_src) != ""
+            " The body exists.
+
+            let l:src = l:body_src
+        endif
+
+    endif
+
+    let l:cmd = s:GPRbuildShellCommand(
+                \ a:s, a:s.gnat_project, l:src)
+    call s:RunGPRbuildShellCommand(a:s, l:cmd, "Compil. of " . l:src)
+
+endfunction
+
+" -----------------------------------------------------------------------------
+
 " Echo last GPRbuild command run (if applicable).
 "
 " Argument #1:
@@ -946,6 +979,79 @@ function feat#diapp_gprbuild#UpdateState() dict
                 \ 'mapping': l:key}
     let self[l:menu].sub
         \ = self[l:menu].sub + [l:menu_item_compile_cur_file]
+
+    let self[l:map] = self[l:map] + ["nnoremap " . l:key . " " . l:cmd]
+    let self[l:map] = self[l:map] + ["inoremap " . l:key . " <ESC>" . l:cmd]
+
+    " -----------------------------------------------------
+
+    let self[l:com] = self[l:com] + ["-nargs=0 GPRbuildCompileCurUnit "]
+
+    let l:cur_file_is_ada_spec = l:ada_file_info.kind ==? 'spec'
+
+    let l:cur_file_is_ada_source
+                \ = l:cur_file_is_ada_spec
+                \ || l:ada_file_info.kind ==? 'body'
+
+    let l:lab = s:EscapeUIString("&Compile current buffer's Ada unit")
+
+    if l:ena && l:cur_file_is_ada_source
+        " Command 'GPRbuildCompileCurFile' is enabled and current file is an
+        " Ada source file (not a GNAT project).
+
+        let l:unit_name = s:AdaUnitName(get(a:, 1, expand('%')))
+
+        let self[l:com][-1] = self[l:com][-1]
+                    \ . ":call diapp#RunFeatureFunc("
+                    \ . "'feat#diapp_gprbuild#CompileCurAdaUnit')"
+        let l:ena = 1
+        let l:lab = s:EscapeUIString("&Compile unit " . l:unit_name)
+
+    elseif !l:ena && l:cur_file_is_ada_source
+        " Command 'GPRbuildCompileCurFile' is not enabled and current file is
+        " an Ada source file (not a GNAT project). It means that there is no
+        " GNAT project file selected.
+
+        let self[l:com][-1] = self[l:com][-1]
+                    \ . ":call diapp#WarnUnavlCom("
+                    \ . l:no_gpr_selected_arg
+                    \ . ")"
+        let l:ena = 0
+
+    elseif l:ena && !l:cur_file_is_ada_source
+        " Command 'GPRbuildCompileCurFile' is enabled and current file is an
+        " Ada source file is not an Ada source file (it could be a GNAT project
+        " or something else entirely).
+
+        let self[l:com][-1] = self[l:com][-1]
+                    \ . ":call diapp#WarnUnavlCom("
+                    \ .'not an Ada source file'
+                    \ . ")"
+        let l:ena = 0
+
+    else
+        " Command 'GPRbuildCompileCurFile' is disabled or current file is not
+        " an Ada source file (it could be a GNAT project or something else
+        " entirely).
+
+        let self[l:com][-1] = self[l:com][-1]
+                    \ . ":call diapp#WarnUnavlCom"
+        let l:ena = 0
+
+    endif
+
+    let l:cmd = ":GPRbuildCompileCurUnit<CR>"
+    let l:key = diapp#GetFeatOpt(
+                \ 'gprbuild', self, 'compile_unit_mapping', '<F11>')
+
+    let l:menu_item_compile_cur_unit
+                \ = {'label': l:lab,
+                \ 'mode': "n",
+                \ 'command': l:cmd,
+                \ 'enabled': l:ena,
+                \ 'mapping': l:key}
+    let self[l:menu].sub
+        \ = self[l:menu].sub + [l:menu_item_compile_cur_unit]
 
     let self[l:map] = self[l:map] + ["nnoremap " . l:key . " " . l:cmd]
     let self[l:map] = self[l:map] + ["inoremap " . l:key . " <ESC>" . l:cmd]

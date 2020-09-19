@@ -264,6 +264,23 @@ GPRbuild invocation~
 			:let g:diapp_gprbuild_compile_cur_mapping="<F4>"
 <
 
+:GPRbuildCompileCurUnit                              *:GPRbuildCompileCurUnit*
+		Elaborate and run a GPRbuild command like
+		|:GPRbuildCompileCurFile| does. The difference is that when
+		the currently edited file is the specification of an Ada unit
+		(an .ads file) and a body (.adb file) exists for this unit,
+		then the elaborated command is the one that
+		|:GPRbuildCompileCurFile| would have elaborated for the body.
+
+                                       *g:diapp_gprbuild_compile_unit_mapping*
+		|:GPRbuildCompileCurFile| is mapped by default to <F11> (in
+		both normal and insert mode). Set variable
+		g:diapp_gprbuild_compile_unit_mapping in your |.vimrc| to map
+		the command to another key. Example with <F4>: >
+
+			:let g:diapp_gprbuild_compile_unit_mapping="<F4>"
+<
+
 Last GPRbuild command~
 
 :EchoLastGPRbuildCommand                            *:EchoLastGPRbuildCommand*
