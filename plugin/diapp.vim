@@ -737,11 +737,15 @@ endfunction
 function diapp#RunFeatureFunc(name, ...)
 
     let l:feat = substitute(a:name, '^feat#diapp_\([^#]\+\)#.\+$', '\1', '')
-    execute "call call('"
-                \ . a:name
-                \ . "', [s:state.feat['"
-                \ . l:feat
-                \ . "']] + a:000)"
+    if s:state.feat[l:feat].disabled
+        call diapp#WarnUnavlCom("feature '" . l:feat . "' is disabled")
+    else
+        execute "call call('"
+                    \ . a:name
+                    \ . "', [s:state.feat['"
+                    \ . l:feat
+                    \ . "']] + a:000)"
+    endif
 
 endfunction
 
