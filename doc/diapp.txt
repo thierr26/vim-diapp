@@ -3,7 +3,7 @@
 
 Author:		Thierry Rascle <thierr26@free.fr>
 For Vim:	7.0 and later
-Last change:	2020-07-24
+Last change:	2020-09-20
 
 
                                DIAPP USER MANUAL
@@ -17,6 +17,7 @@ CONTENTS                                                      *diapp-contents*
 	GPRBUILD RELATED COMMANDS  . . . . . . . . |diapp-gprbuild|
 	FILE RINGS RELATED COMMANDS  . . . . . . . |diapp-file-ring|
 	VIM HELP FILE RELATED ACTIONS AND COMMANDS |diapp-vimhelp|
+	GENERAL COMMANDS . . . . . . . . . . . . . |diapp-general|
 	CREDITS AND LICENSE  . . . . . . . . . . . |diapp-license|
 
 ==============================================================================
@@ -73,40 +74,6 @@ not useful at the moment. A menu item may also be present but disabled
 (grayed), which means it's not useful at the moment. In this case, an
 informational text may appear instead of the normal menu item label to
 indicate why it's disabled.
-
-:AF command ("auto fill")~
-                                                             *diapp-auto-fill*
-                                                                         *:AF*
-When available, and if provided with 0, 1 or 2 valid arguments, the `:AF`
-command writes after the cursor (like |a|) a pattern as many times as needed
-to obtain a line of a given length. The last occurrence of the pattern may be
-truncated.
-
-The line length is by default the value of 'textwidth' but a specific line
-length can be provided as argument.
-
-If no pattern is provided as argument, then the pattern defaults to the
-character under the cursor if the current line is not empty or to a string
-which depends on the file type. See:
-- |diapp-gprbuild-auto-fill|
-- |diapp-vimhelp-auto-fill|
-
-Example #1 - use the default pattern and the default line length: >
-
-	:AF
-<
-
-Example #2 - provide a pattern as argument (note the escaping of the space
-character): >
-
-	:AF \ .
-<
-
-Example #3 - provide both a pattern and a line length as argument (the order
-of the arguments is not significant): >
-
-	:AF \ . 50
-<
 
 ==============================================================================
 
@@ -265,11 +232,10 @@ GPRbuild invocation~
 <
 
 :GPRbuildCompileCurUnit                              *:GPRbuildCompileCurUnit*
-		Elaborate and run a GPRbuild command like
-		|:GPRbuildCompileCurFile| does. The difference is that when
-		the currently edited file is the specification of an Ada unit
-		(an .ads file) and a body (.adb file) exists for this unit,
-		then the elaborated command is the one that
+		Do what |:GPRbuildCompileCurFile| would do with the difference
+		that  when the currently edited file is the specification of
+		an Ada unit (an .ads file) and a body (.adb file) exists for
+		this unit, then the elaborated command is the one that
 		|:GPRbuildCompileCurFile| would have elaborated for the body.
 
                                        *g:diapp_gprbuild_compile_unit_mapping*
@@ -279,6 +245,25 @@ GPRbuild invocation~
 		the command to another key. Example with <F4>: >
 
 			:let g:diapp_gprbuild_compile_unit_mapping="<F4>"
+<
+
+GPRbuild reinvocation~
+
+Command |:RerunLastDiappExtCommand| (mapped by default to <F12>) repeats the
+last GPRbuild invocation (if no other external command has been invoked by a
+Diapp feature since).
+
+                                *g:diapp_gprbuild_hide_qf_on_successful_rerun*
+By default, Diapp's behavior is the same on a GPRbuild reinvocation as on the
+initial invocation: The |quickfix-window| is opened if there is at least one
+diagnostic message to be shown, even if GPRbuild exit status is 0 (which means
+that none of the diagnostic messages are error messages, they are "only"
+warnings or notes). You can change the behavior on reinvocations by setting
+variable g:diapp_gprbuild_hide_qf_on_successful_rerun to 1 in your |.vimrc|,
+which causes the |quickfix-window| to be hidden (that is not opened or closed
+if it were already opened) if GPRbuild exit status is 0: >
+
+			:let g:diapp_gprbuild_hide_qf_on_successful_rerun=1
 <
 
 Last GPRbuild command~
@@ -358,6 +343,55 @@ features described in this section. >
                                                      *diapp-vimhelp-auto-fill*
 For Vim help files, the default pattern for the |:AF| command is a space
 followed by a dot (" .").
+
+==============================================================================
+
+
+GENERAL COMMANDS                                               *diapp-general*
+
+:AF command ("auto fill")~
+                                                                         *:AF*
+When available, and if provided with 0, 1 or 2 valid arguments, the `:AF`
+command writes after the cursor (like |a|) a pattern as many times as needed
+to obtain a line of a given length. The last occurrence of the pattern may be
+truncated.
+
+The line length is by default the value of 'textwidth' but a specific line
+length can be provided as argument.
+
+If no pattern is provided as argument, then the pattern defaults to the
+character under the cursor if the current line is not empty or to a string
+which depends on the file type. See:
+- |diapp-gprbuild-auto-fill|
+- |diapp-vimhelp-auto-fill|
+
+Example #1 - use the default pattern and the default line length: >
+
+	:AF
+<
+
+Example #2 - provide a pattern as argument (note the escaping of the space
+character): >
+
+	:AF \ .
+<
+
+Example #3 - provide both a pattern and a line length as argument (the order
+of the arguments is not significant): >
+
+	:AF \ . 50
+<
+
+External commands reinvocation~
+                                                   *:RerunLastDiappExtCommand*
+When invoking an external command, the Diapp features store the command line.
+You can rerun the last invoked external command with :RerunLastDiappExtCommand.
+:RerunLastDiappExtCommand is mapped by default to <F12> (in both normal and
+insert mode). Set variable g:diapp_plugin_rerun_last_diapp_ext_cmd_mapping in
+your |.vimrc| to map the command to another key. Example with <F4>: >
+
+	:let g:diapp_plugin_rerun_last_diapp_ext_cmd_mapping="<F4>"
+<
 
 ==============================================================================
 

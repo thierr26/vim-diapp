@@ -491,8 +491,12 @@ endfunction
 "
 " Argument #3 (optional):
 " Quickfix window status line.
+"
+" Argument #4 (optional):
+" Falsy if the quickfix window should not be opened when the GPRbuild command
+" exit status is zero, truthy otherwise. Defaults to a truthy value.
 
-function s:RunGPRbuildShellCommand(s, cmd, ...)
+function feat#diapp_gprbuild#RunGPRbuildShellCommand(s, cmd, ...)
 
     " Write all changed buffers.
     wa
@@ -593,14 +597,21 @@ function s:RunGPRbuildShellCommand(s, cmd, ...)
 
     call setqflist(l:qflist, 'r')
 
-    if !empty(l:qflist)
+    " We want to open the quickfix window if the quickfix list is not empty,
+    " unless the exit status of the GPRbuild command is zero and the 4th
+    " argument is provided and falsy.
+    let l:qf_wanted = !empty(l:qflist) &&
+                \ (!l:passed || (a:0 <= 1 || a:2)
+                \ || !a:s.hide_qf_on_successful_rerun)
+
+    if l:qf_wanted
         " There are errors or warnings in the quickfix list.
 
         " Open the quickfix window.
         copen
 
         if a:0 > 0
-            " Optional argument provided.
+            " Optional quickfix window status line provided.
 
             execute "setlocal statusline="
                         \ . s:EscapeUIString(l:shell_error
@@ -660,7 +671,12 @@ function feat#diapp_gprbuild#BuildCurGNATProj(s)
 
     let l:gpr = s:FileNameForUI()
     let l:cmd = s:GPRbuildShellCommand(a:s, l:gpr)
-    call s:RunGPRbuildShellCommand(a:s, l:cmd, "Build of " . l:gpr)
+    let l:list = ['feat#diapp_gprbuild#RunGPRbuildShellCommand',
+                \ l:cmd,
+                \ "Build of " . l:gpr]
+    call call('diapp#StoreFeatureFuncCall',
+                \ [diapp#StateKeyLastExtCmd()] + l:list + [0])
+    call call('diapp#RunFeatureFunc', l:list)
 
 endfunction
 
@@ -676,7 +692,12 @@ function feat#diapp_gprbuild#CompileCurFile(s)
     let l:src = s:FileNameForUI()
     let l:cmd = s:GPRbuildShellCommand(
                 \ a:s, a:s.gnat_project, l:src)
-    call s:RunGPRbuildShellCommand(a:s, l:cmd, "Compil. of " . l:src)
+    let l:list = ['feat#diapp_gprbuild#RunGPRbuildShellCommand',
+                \ l:cmd,
+                \ "Compil. of " . l:src]
+    call call('diapp#StoreFeatureFuncCall',
+                \ [diapp#StateKeyLastExtCmd()] + l:list + [0])
+    call call('diapp#RunFeatureFunc', l:list)
 
 endfunction
 
@@ -709,7 +730,12 @@ function feat#diapp_gprbuild#CompileCurAdaUnit(s)
 
     let l:cmd = s:GPRbuildShellCommand(
                 \ a:s, a:s.gnat_project, l:src)
-    call s:RunGPRbuildShellCommand(a:s, l:cmd, "Compil. of " . l:src)
+    let l:list = ['feat#diapp_gprbuild#RunGPRbuildShellCommand',
+                \ l:cmd,
+                \ "Compil. of " . l:src]
+    call call('diapp#StoreFeatureFuncCall',
+                \ [diapp#StateKeyLastExtCmd()] + l:list + [0])
+    call call('diapp#RunFeatureFunc', l:list)
 
 endfunction
 
@@ -781,6 +807,12 @@ function feat#diapp_gprbuild#UpdateState() dict
 
     let self.issue_all_comm_msg = diapp#GetFeatOpt(
                 \ 'gprbuild', self, 'comm_msg', '1')
+
+    let self.hide_qf_on_successful_rerun = diapp#GetFeatOpt(
+                \ 'gprbuild',
+                \ self,
+                \ 'hide_qf_on_successful_rerun',
+                \ 0)
 
     " Reset the 'menu' item of the feature state dictionary before building
     " each menu item.

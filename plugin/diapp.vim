@@ -159,10 +159,10 @@ endfunction
 
 " -----------------------------------------------------------------------------
 
-" Key for the "menu" item of a feature state.
+" A feature state dictionary key.
 "
 " Return value:
-" Key for the "menu" item of a feature state.
+" Feature state dictionary key (string).
 
 function diapp#FeatStateKeyMenu()
 
@@ -172,10 +172,10 @@ endfunction
 
 " -----------------------------------------------------------------------------
 
-" Key for the "com" item of a feature state.
+" A feature state dictionary key.
 "
 " Return value:
-" Key for the "com" item of a feature state.
+" Feature state dictionary key (string).
 
 function diapp#FeatStateKeyCom()
 
@@ -185,14 +185,40 @@ endfunction
 
 " -----------------------------------------------------------------------------
 
-" Key for the "map" item of a feature state.
+" A feature state dictionary key.
 "
 " Return value:
-" Key for the "map" item of a feature state.
+" Feature state dictionary key (string).
 
 function diapp#FeatStateKeyMap()
 
     return 'map'
+
+endfunction
+
+" -----------------------------------------------------------------------------
+
+" A state dictionary key.
+"
+" Return value:
+" State dictionary key (string).
+
+function diapp#StateKeyLastExtCmd()
+
+    return 'last_ext_cmd'
+
+endfunction
+
+" -----------------------------------------------------------------------------
+
+" Reserved feature names.
+"
+" Return value:
+" Reserved feature name.
+
+function s:ReservedFeatureNames()
+
+    return ['plugin']
 
 endfunction
 
@@ -407,6 +433,14 @@ function s:UpdatedState(...)
 
         " Find Diapp's feature names.
         let l:feat = s:FeatureList()
+
+        " Warn if reserved feature names have been used.
+        for f in l:feat
+            if index(s:ReservedFeatureNames(), f) != -1
+                call diapp#Warn(
+                            \ '"' . f . '" is not allowed as a feature name.')
+            endif
+        endfor
 
         if empty(l:feat)
             call diapp#Warn("Diapp is not working "
@@ -751,9 +785,8 @@ endfunction
 
 " -----------------------------------------------------------------------------
 
-" Run a "feature function" (with the feature state dictionary plus extra
-" arguments (if any) as arguments), update the feature state dictionary and
-" refresh the user interface.
+" Call 'diapp#RunFeatureFunc' with argument #1 and extra arguments and then
+" call 's:DiappRefreshUI(1)'.
 "
 " Argument #1:
 " Name of the feature function (like
@@ -766,6 +799,42 @@ function diapp#RunFeatureFuncAndRefreshUI(name, ...)
 
     call call('diapp#RunFeatureFunc', [a:name] + a:000)
     call s:DiappRefreshUI(1)
+
+endfunction
+
+" -----------------------------------------------------------------------------
+"
+" Call 'diapp#RunFeatureFunc' using the list stored in a state dictionnary item
+" as argument.
+"
+" Argument #1:
+" State dictionary item key.
+
+function diapp#RunStoredFeatureFunc(state_key)
+
+    call call('diapp#RunFeatureFunc', s:state[a:state_key])
+
+endfunction
+
+" -----------------------------------------------------------------------------
+"
+" Store the list made of argument #2 and extra arguments as a state dictionnary
+" item (the name of this item is provided in argument #1).
+"
+" Argument #1:
+" State dictionary item key.
+"
+" Argument #2:
+" Name of the feature function (like
+" "feat#diapp_<feature name>#<function name>").
+"
+" Other arguments (optional):
+" Any other arguments that need to be passed to the "feature function".
+
+function diapp#StoreFeatureFuncCall(state_key, name, ...)
+
+    let s:state[a:state_key] = [a:name] + a:000
+    call diapp#RunStoredFeatureFunc(a:state_key)
 
 endfunction
 
@@ -783,10 +852,18 @@ augroup diapp
 
 augroup END
 
-" Define permanent commands.
+" Define permanent commands and mappings.
+
 command -nargs=0 EchoLastGPRbuildCommand
             \ :call diapp#RunFeatureFunc(
             \ 'feat#diapp_gprbuild#EchoLastCommand')
+
+command -nargs=0 RerunLastDiappExtCommand
+            \ :call diapp#RunStoredFeatureFunc(diapp#StateKeyLastExtCmd())
+let s:key = diapp#GetFeatOpt(
+            \ 'plugin', s:state, 'rerun_last_diapp_ext_cmd_mapping', '<F12>')
+execute "nnoremap " . s:key . " :RerunLastDiappExtCommand<CR>"
+execute "inoremap " . s:key . " <ESC>:RerunLastDiappExtCommand<CR>"
 
 " -----------------------------------------------------------------------------
 
