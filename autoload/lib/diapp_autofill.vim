@@ -6,7 +6,23 @@ set cpo&vim
 
 " -----------------------------------------------------------------------------
 
-" TODO
+" Insert a pattern repeatedly. First argument (default pattern) is mandatory.
+" The two other arguments are optional (zero, one or two of them can be
+" provided, in any order). Allowed types for the optional arguments are
+" integer and string. The two optional arguments cannot be of the same type.
+"
+" The number of pattern repetitions is the number needed to make 'col('$')'
+" equal to the integer optional argument (or to '&textwidth' if no such
+" argument is provided). The last inserted pattern may be truncated.
+"
+" Argument #1:
+" Default pattern (string).
+"
+" Argument #2 (optional):
+" Pattern (string) or target text width (integer).
+"
+" Argument #3 (optional):
+" Pattern (string) or target text width (integer).
 
 function lib#diapp_autofill#AutoFill(default_pattern, ...)
 
