@@ -86,6 +86,12 @@ function lib#diapp_autofill#AutoFill(default_pattern, ...)
         return
     endif
 
+    " Save textwidth option value.
+    let l:textwidth_save = &textwidth
+
+    " Disable automatic line breaks.
+    let &textwidth = 0
+
     " Fill.
     while col('$') <= l:line_width
         execute "normal! a" . l:pattern . ""
@@ -95,6 +101,9 @@ function lib#diapp_autofill#AutoFill(default_pattern, ...)
     while col('$') > l:line_width + 1
         normal! X
     endwhile
+
+    " Restore textwidth option value.
+    let &textwidth = l:textwidth_save
 
 endfunction
 
