@@ -456,7 +456,8 @@ endfunction
 
 function feat#diapp_gprbuild#ResetGPRbuildOpt(s)
 
-    let a:s.gprbuild_opt = ""
+    let a:s.gprbuild_opt = diapp#GetFeatOpt(
+                \ 'gprbuild', a:s, 'default_gprbuild_options', '')
 
 endfunction
 
@@ -793,8 +794,7 @@ function feat#diapp_gprbuild#UpdateState() dict
     endif
 
     if !has_key(self, 'gprbuild_opt')
-        let self.gprbuild_opt = diapp#GetFeatOpt(
-                    \ 'gprbuild', self, 'default_gprbuild_options', '')
+        call feat#diapp_gprbuild#ResetGPRbuildOpt(self)
     endif
 
     let l:lang_opt = diapp#GetFeatOpt('gprbuild', self, 'lang', 'C')
