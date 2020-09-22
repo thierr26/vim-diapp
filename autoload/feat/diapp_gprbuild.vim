@@ -502,7 +502,7 @@ function feat#diapp_gprbuild#RunGPRbuildShellCommand(s, cmd, ...)
     " Write all changed buffers.
     wa
 
-    " Remove the LANG part of the command (if any).
+    " Store a copy of the command, with the LANG part removed (if any).
     let l:cmd_no_lang = substitute(a:cmd, '^LANG=[^ ]\+ && ', '', '')
 
     echo "Running " . l:cmd_no_lang
