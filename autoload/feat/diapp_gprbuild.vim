@@ -1025,7 +1025,7 @@ function feat#diapp_gprbuild#UpdateState() dict
                 \ = l:cur_file_is_ada_spec
                 \ || l:ada_file_info.kind ==? 'body'
 
-    let l:lab = s:EscapeUIString("&Compile current buffer's Ada unit")
+    let l:lab = s:EscapeUIString("Compile current buffer's Ada &unit")
 
     if l:ena && l:cur_file_is_ada_source
         " Command 'GPRbuildCompileCurFile' is enabled and current file is an
@@ -1037,7 +1037,7 @@ function feat#diapp_gprbuild#UpdateState() dict
                     \ . ":call diapp#RunFeatureFunc("
                     \ . "'feat#diapp_gprbuild#CompileCurAdaUnit')"
         let l:ena = 1
-        let l:lab = s:EscapeUIString("&Compile unit " . l:unit_name)
+        let l:lab = s:EscapeUIString("Compile &unit " . l:unit_name)
 
     elseif !l:ena && l:cur_file_is_ada_source
         " Command 'GPRbuildCompileCurFile' is not enabled and current file is
