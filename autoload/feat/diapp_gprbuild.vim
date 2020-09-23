@@ -1005,7 +1005,7 @@ function feat#diapp_gprbuild#UpdateState() dict
                 \ 'gprbuild', self, 'compile_cur_mapping', '<F10>')
     let l:menu_item_compile_cur_file
                 \ = {'label': l:lab,
-                \ 'mode': "n",
+                \ 'mode': "ni",
                 \ 'command': l:cmd,
                 \ 'enabled': l:ena,
                 \ 'mapping': l:key}
@@ -1078,7 +1078,7 @@ function feat#diapp_gprbuild#UpdateState() dict
 
     let l:menu_item_compile_cur_unit
                 \ = {'label': l:lab,
-                \ 'mode': "n",
+                \ 'mode': "ni",
                 \ 'command': l:cmd,
                 \ 'enabled': l:ena,
                 \ 'mapping': l:key}

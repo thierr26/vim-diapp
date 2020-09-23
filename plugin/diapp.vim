@@ -543,18 +543,32 @@ function s:CreateUIFeatureMenu(feat, ...)
     else
         " The menu item to be created is a "leaf" item.
 
-        " Create the menu item.
-        let l:mode = l:menu_data.mode
+        " Build the menu item label.
         let l:label = join(l:ancestor_list + [l:menu_data.label], '.')
         if has_key(l:menu_data, 'mapping') && !empty(l:menu_data.mapping)
             let l:label = l:label . '<TAB>' . l:menu_data.mapping
         endif
-        let l:cmd = l:menu_data.command
-        execute l:mode . "noremenu <silent> " . l:label . " " . l:cmd
 
-        " Enable or disable the item.
-        let l:status = l:menu_data.enabled ? "enable" : "disable"
-        execute l:mode . "menu " . l:status . " " . l:label
+        " Loop over the menu item modes and create the menu item for each mode.
+        let l:remaining_modes = l:menu_data.mode
+        while strlen(l:remaining_modes) != 0
+
+            let l:mode = strpart(l:remaining_modes, 0, 1)
+            let l:remaining_modes = strpart(l:remaining_modes, 1)
+
+            " For insert mode, "<ESC>" is added to exit insert mode before
+            " launching the menu command.
+            let l:esc = (l:mode ==? "i") ? "<ESC>" : ""
+
+            " Create the menu item.
+            execute l:mode . "noremenu <silent> "
+                        \ . l:label . " " . l:esc . l:menu_data.command
+
+            " Enable or disable the menu item.
+            let l:status = l:menu_data.enabled ? "enable" : "disable"
+            execute l:mode . "menu " . l:status . " " . l:label
+
+        endwhile
 
     endif
 
