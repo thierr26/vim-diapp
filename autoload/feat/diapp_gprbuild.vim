@@ -1051,9 +1051,9 @@ function feat#diapp_gprbuild#UpdateState() dict
         let l:ena = 0
 
     elseif l:ena && !l:cur_file_is_ada_source
-        " Command 'GPRbuildCompileCurFile' is enabled and current file is an
-        " Ada source file is not an Ada source file (it could be a GNAT project
-        " or something else entirely).
+        " Command 'GPRbuildCompileCurFile' is enabled and current file is not
+        " an Ada source file (it could be a GNAT project or something else
+        " entirely).
 
         let self[l:com][-1] = self[l:com][-1]
                     \ . ":call diapp#WarnUnavlCom("
