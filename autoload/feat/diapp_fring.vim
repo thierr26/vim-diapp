@@ -374,8 +374,10 @@ function feat#diapp_fring#EditFRingNext(s)
             " Next file in the ring is not already edited, or at least not in
             " the current tab page.
 
-            " Write current buffer.
-            w
+            " Write current buffer if modified.
+            if &mod
+                w
+            endif
 
             " Edit the next file in the ring.
             execute "edit " . l:next_file_name
