@@ -320,7 +320,8 @@ endfunction
 " <user opt.> denotes the options the user may have provided via
 " 'g:diapp_gprbuild_default_gprbuild_options' or via command 'SetGPRbuildOpt'.
 "
-" If the GNAT project file name is empty, then the -P option is omitted.
+" If the GNAT project file name (second argument) is empty, then the '-P'
+" option is omitted.
 "
 " Meaning of the mentioned GPRbuild switches:
 "
@@ -474,6 +475,53 @@ function feat#diapp_gprbuild#EchoGPRbuildOpt(s)
         call diapp#Warn("No GPRbuild options")
     else
         echo a:s.gprbuild_opt
+    endif
+
+endfunction
+
+" -----------------------------------------------------------------------------
+
+" Set GPRclean options.
+"
+" Argument #1:
+" Current feature state dictionary.
+"
+" Argument #2:
+" GPRclean options (e.g. "-c -r").
+
+function feat#diapp_gprbuild#SetGPRcleanOpt(s, options)
+
+    let a:s.gprclean_opt = a:options
+
+endfunction
+
+" -----------------------------------------------------------------------------
+
+" Reset GPRclean options.
+"
+" Argument #1:
+" Current feature state dictionary.
+
+function feat#diapp_gprbuild#ResetGPRcleanOpt(s)
+
+    let a:s.gprclean_opt = diapp#GetFeatOpt(
+                \ 'gprbuild', a:s, 'default_gprclean_options', '')
+
+endfunction
+
+" -----------------------------------------------------------------------------
+
+" Show (using 'echo') the current GPRclean options (if any).
+"
+" Argument #1:
+" Current feature state dictionary.
+
+function feat#diapp_gprbuild#EchoGPRcleanOpt(s)
+
+    if empty(a:s.gprclean_opt)
+        call diapp#Warn("No GPRclean options")
+    else
+        echo a:s.gprclean_opt
     endif
 
 endfunction
@@ -757,6 +805,57 @@ endfunction
 
 " -----------------------------------------------------------------------------
 
+" Issue a GPRclean command, like:
+"
+" gprclean <use opt.> -P <GNAT proj. file>.
+"
+" <user opt.> denotes the options the user may have provided via
+" 'g:diapp_gprbuild_default_gprclean_options' or via command 'SetGPRcleanOpt'.
+"
+" <GNAT proj. file> denotes the GNAT project file and is taken from
+" 'a:s.gnat_project'. If the GNAT project file name is empty, then the '-P'
+" option is omitted.
+"
+" Argument #1:
+" Current feature state dictionary.
+
+function feat#diapp_gprbuild#RunGPRclean(s)
+
+    " Build the GPRclean command.
+    let l:cmd = a:s.lang . "gprclean"
+                \ . (empty(a:s.gprclean_opt) ? "" : " ")
+                \ . a:s.gprclean_opt
+                \ . " -P "
+                \ . a:s.gnat_project
+
+    " Store a copy of the command, with the LANG part removed (if any).
+    let l:cmd_no_lang = substitute(l:cmd, '^LANG=[^ ]\+ && ', '', '')
+
+    echo "Running " . l:cmd_no_lang
+
+    " Run the command.
+    call system(l:cmd)
+    let l:shell_error = v:shell_error
+    let l:passed = (l:shell_error == 0)
+    call call('diapp#StoreFeatureFuncCall',
+                \ [diapp#StateKeyLastExtCmd()]
+                \ + ['feat#diapp_gprbuild#RunGPRclean'])
+
+    if !l:passed
+        echohl WarningMsg
+    endif
+    echomsg "("
+                \ . (l:passed
+                \ ? "Passed"
+                \ : "Failed [exit status " . l:shell_error . "]")
+                \ . ") "
+                \ . l:cmd_no_lang
+    echohl None
+
+endfunction
+
+" -----------------------------------------------------------------------------
+
 " Return a truthy value if the edited file is such that the feature state
 " dictionary should be updated on a 'BufEnter' or 'FileType' event, return a
 " falsy value otherwise.
@@ -813,6 +912,10 @@ function feat#diapp_gprbuild#UpdateState() dict
                 \ self,
                 \ 'hide_qf_on_successful_rerun',
                 \ 0)
+
+    if !has_key(self, 'gprclean_opt')
+        call feat#diapp_gprbuild#ResetGPRcleanOpt(self)
+    endif
 
     " Reset the 'menu' item of the feature state dictionary before building
     " each menu item.
@@ -1086,6 +1189,50 @@ function feat#diapp_gprbuild#UpdateState() dict
 
     let self[l:map] = self[l:map] + ["nnoremap " . l:key . " " . l:cmd]
     let self[l:map] = self[l:map] + ["inoremap " . l:key . " <ESC>" . l:cmd]
+
+    " -----------------------------------------------------
+
+    let self[l:com] = self[l:com]
+                \ + ["-nargs=1 SetGPRcleanOpt "
+                \ . ":call diapp#RunFeatureFunc("
+                \ . "'feat#diapp_gprbuild#SetGPRcleanOpt', "
+                \ . "<f-args>)"]
+    let self[l:com] = self[l:com]
+                \ + ["-nargs=0 ResetGPRcleanOpt "
+                \ . ":call diapp#RunFeatureFunc("
+                \ . "'feat#diapp_gprbuild#ResetGPRcleanOpt')"]
+    let self[l:com] = self[l:com]
+                \ + ["-nargs=0 EchoGPRcleanOpt "
+                \ . ":call diapp#RunFeatureFunc("
+                \ . "'feat#diapp_gprbuild#EchoGPRcleanOpt')"]
+
+    " -----------------------------------------------------
+
+    let self[l:com] = self[l:com] + ["-nargs=0 RunGPRclean "]
+
+    let l:lab = s:EscapeUIString("Run GPRclea&n")
+
+    if empty(self.gnat_project)
+        let self[l:com][-1] = self[l:com][-1]
+                    \ . ":call diapp#WarnUnavlCom("
+                    \ . l:no_gpr_selected_arg
+                    \ . ")"
+        let l:ena = 0
+    else
+        let self[l:com][-1] = self[l:com][-1]
+                    \ . ":call diapp#RunFeatureFunc("
+                    \ . "'feat#diapp_gprbuild#RunGPRclean')"
+        let l:ena = 1
+    endif
+
+    let l:cmd = ":RunGPRclean<CR>"
+    let l:menu_item_compile_cur_file
+                \ = {'label': l:lab,
+                \ 'mode': "n",
+                \ 'command': l:cmd,
+                \ 'enabled': l:ena}
+    let self[l:menu].sub
+        \ = self[l:menu].sub + [l:menu_item_compile_cur_file]
 
     " -----------------------------------------------------
 

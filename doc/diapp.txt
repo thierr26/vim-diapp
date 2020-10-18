@@ -3,7 +3,7 @@
 
 Author:		Thierry Rascle <thierr26@free.fr>
 For Vim:	7.0 and later
-Last change:	2020-09-20
+Last change:	2020-10-18
 
 
                                DIAPP USER MANUAL
@@ -141,8 +141,7 @@ GPRbuild options management~
 <
 
                                    *g:diapp_gprbuild_default_gprbuild_options*
-		By default, no options are defined (that is the state is the
-		same that after an invocation of |:ResetGPRbuildOpt|). Set
+		By default, no options are defined. Set
 		g:diapp_gprbuild_default_gprbuild_options in your |.vimrc| to
 		set options by default. Example: >
 
@@ -172,10 +171,11 @@ GPRbuild invocation~
 
 :GPRbuildCompileCurFile                              *:GPRbuildCompileCurFile*
 		Elaborate a GPRbuild command based on the currently edited
-		file and the currently selected GNAT project file (if any),
-		and run the command. Also, if any diagnostic message (error,
-		warning, ...) is issued by GPRbuild, populate the |quickfix|
-		list and open the |quickfix-window|.
+		file, the currently selected GNAT project file (if any) and
+		the defined GPRbuild options, and run the command. Also, if any
+		diagnostic message (error, warning, ...) is issued by
+		GPRbuild, populate the |quickfix| list and open the
+		|quickfix-window|.
 
 			If the currently edited file is not a GNAT project
 			file (.gpr file), then the GPRbuild command is made to
@@ -247,11 +247,52 @@ GPRbuild invocation~
 			:let g:diapp_gprbuild_compile_unit_mapping="<F4>"
 <
 
-GPRbuild reinvocation~
+Last GPRbuild command~
+
+:EchoLastGPRbuildCommand                            *:EchoLastGPRbuildCommand*
+		Echo the last GPRbuild command run (if any).
+
+GPRclean options management~
+
+:SetGPRcleanOpt {options}                                    *:SetGPRcleanOpt*
+		Define options to be used in GPRclean commands. Options
+		provided in {options} are used in addition to options that
+		Diapp unconditionally passes to GPRclean (see |:RunGPRclean|
+		for more details). Example: >
+
+			:SetGPRcleanOpt -c -r
+<
+
+                                   *g:diapp_gprbuild_default_gprclean_options*
+		By default, no options are defined. Set
+		g:diapp_gprbuild_default_gprclean_options in your |.vimrc| to
+		set options by default. Example: >
+
+			:let g:diapp_gprbuild_default_gprclean_options
+				\ = "-c -r"
+<
+
+:ResetGPRcleanOpt                                          *:ResetGPRcleanOpt*
+		Cancel the effect of any previous invocation(s) of
+		|:SetGPRcleanOpt|.
+
+:EchoGPRcleanOpt                                            *:EchoGPRcleanOpt*
+		Echo the options (if any) defined using |:SetGPRcleanOpt|.
+
+GPRclean invocation~
+
+:RunGPRclean                                                    *:RunGPRclean*
+		Elaborate a GPRclean command based on the currently selected
+		GNAT project file (if any) and the defined GPRclean options,
+		and run the command.
+
+GPRbuild / GPRclean reinvocation~
 
 Command |:RerunLastDiappExtCommand| (mapped by default to <F12>) repeats the
-last GPRbuild invocation (if no other external command has been invoked by a
-Diapp feature since).
+last invocation of GPRbuild or GPRclean (whichever has been called last). Keep
+in mind that :RerunLastDiappExtCommand runs the last external command invoked
+by a Diapp feature. So it may not run GPRbuild or GPRclean but run an entirely
+different command instead.
 
                                 *g:diapp_gprbuild_hide_qf_on_successful_rerun*
 By default, Diapp's behavior is the same on a GPRbuild reinvocation as on the
@@ -265,11 +306,6 @@ if it were already opened) if GPRbuild exit status is 0: >
 
 			:let g:diapp_gprbuild_hide_qf_on_successful_rerun=1
 <
-
-Last GPRbuild command~
-
-:EchoLastGPRbuildCommand                            *:EchoLastGPRbuildCommand*
-		Echo the last GPRbuild command run (if any).
 
                                                     *diapp-gprbuild-auto-fill*
 For files of type "ada", "c", "cpp" or "fortran", the default pattern for the
