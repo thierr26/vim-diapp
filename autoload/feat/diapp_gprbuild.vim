@@ -22,9 +22,9 @@ endfunction
 
 " -----------------------------------------------------------------------------
 
-" Name of current file (if no argument is provided) or of the file provided as
-" argument, relative to current working directory if possible, to be used in
-" user interface.
+" Name of current buffer file (if no argument is provided) or of the file
+" provided as argument, relative to current working directory if possible, to
+" be used in user interface.
 "
 " Argument #1 (optional):
 " Absolute or relative file name.
@@ -400,7 +400,7 @@ endfunction
 function feat#diapp_gprbuild#SelectGPRFile(s, ...)
 
     if a:0 == 0
-        let a:s.gnat_project = s:FileNameForUI()
+        let a:s.gnat_project = a:s.cur_file_name
     else
         let l:f_i = s:FileInfo(a:1)
         if l:f_i.is_concrete()
@@ -670,11 +670,10 @@ endfunction
 
 function feat#diapp_gprbuild#BuildCurGNATProj(s)
 
-    let l:gpr = s:FileNameForUI()
-    let l:cmd = s:GPRbuildShellCommand(a:s, l:gpr)
+    let l:cmd = s:GPRbuildShellCommand(a:s, a:s.cur_file_name)
     let l:list = ['feat#diapp_gprbuild#RunGPRbuildShellCommand',
                 \ l:cmd,
-                \ "Build of " . l:gpr]
+                \ "Build of " . a:s.cur_file_name]
     call call('diapp#StoreFeatureFuncCall',
                 \ [diapp#StateKeyLastExtCmd()] + l:list + [0])
     call call('diapp#RunFeatureFunc', l:list)
@@ -690,12 +689,11 @@ endfunction
 
 function feat#diapp_gprbuild#CompileCurFile(s)
 
-    let l:src = s:FileNameForUI()
     let l:cmd = s:GPRbuildShellCommand(
-                \ a:s, a:s.gnat_project, l:src)
+                \ a:s, a:s.gnat_project, a:s.cur_file_name)
     let l:list = ['feat#diapp_gprbuild#RunGPRbuildShellCommand',
                 \ l:cmd,
-                \ "Compil. of " . l:src]
+                \ "Compil. of " . a:s.cur_file_name]
     call call('diapp#StoreFeatureFuncCall',
                 \ [diapp#StateKeyLastExtCmd()] + l:list + [0])
     call call('diapp#RunFeatureFunc', l:list)
@@ -711,7 +709,7 @@ endfunction
 
 function feat#diapp_gprbuild#CompileCurAdaUnit(s)
 
-    let l:src = s:FileNameForUI()
+    let l:src = a:s.cur_file_name
     let l:ext = "." . lib#diapp_file#Ext(l:src)
 
     if l:ext ==? ".ads"
@@ -793,6 +791,8 @@ function feat#diapp_gprbuild#UpdateState() dict
         endif
     endif
 
+    let self.cur_file_name = s:FileNameForUI()
+
     if !has_key(self, 'gprbuild_opt')
         call feat#diapp_gprbuild#ResetGPRbuildOpt(self)
     endif
@@ -825,20 +825,19 @@ function feat#diapp_gprbuild#UpdateState() dict
     let l:map = diapp#FeatStateKeyMap()
     let self[l:map] = []
 
-    let l:gpr_candidate = s:FileNameForUI()
-    let l:ada_file_info = s:FileInfo(l:gpr_candidate)
+    let l:ada_file_info = s:FileInfo(self.cur_file_name)
 
     " -----------------------------------------------------
 
     let l:no_gpr_selected = "No GNAT project selected."
     let l:abst_gpr = " is abstract."
 
-    if !empty(self.gnat_project) && l:gpr_candidate ==# self.gnat_project
+    if !empty(self.gnat_project) && self.cur_file_name ==# self.gnat_project
         " Current file has already been chosen as GNAT project file.
 
         let l:lab = s:EscapeUIString(
                     \ "("
-                    \ . l:gpr_candidate
+                    \ . self.cur_file_name
                     \ . " is already the selected GNAT project.)")
         let l:valid_gpr_candidate = 0
     else
@@ -870,7 +869,7 @@ function feat#diapp_gprbuild#UpdateState() dict
                 if empty(self.gnat_project)
                     let l:lab = s:EscapeUIString(
                                 \ "("
-                                \ . l:gpr_candidate
+                                \ . self.cur_file_name
                                 \ . l:abst_gpr
                                 \ . " "
                                 \ . l:no_gpr_selected
@@ -878,7 +877,7 @@ function feat#diapp_gprbuild#UpdateState() dict
                 else
                     let l:lab = s:EscapeUIString(
                                 \ "("
-                                \ . l:gpr_candidate
+                                \ . self.cur_file_name
                                 \ . l:abst_gpr
                                 \ . " "
                                 \ . l:sel
@@ -971,7 +970,7 @@ function feat#diapp_gprbuild#UpdateState() dict
                         \ . ":call diapp#RunFeatureFunc("
                         \ . "'feat#diapp_gprbuild#BuildCurGNATProj')"
             let l:ena = 1
-            let l:lab = s:EscapeUIString("&Build " . s:FileNameForUI())
+            let l:lab = s:EscapeUIString("&Build " . self.cur_file_name)
         else
             let self[l:com][-1] = self[l:com][-1]
                         \ . ":call diapp#WarnUnavlCom("
@@ -996,7 +995,7 @@ function feat#diapp_gprbuild#UpdateState() dict
                         \ . ":call diapp#RunFeatureFunc("
                         \ . "'feat#diapp_gprbuild#CompileCurFile')"
             let l:ena = 1
-            let l:lab = s:EscapeUIString("&Compile " . s:FileNameForUI())
+            let l:lab = s:EscapeUIString("&Compile " . self.cur_file_name)
         endif
     endif
 
