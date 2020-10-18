@@ -848,7 +848,6 @@ endfunction
 function diapp#StoreFeatureFuncCall(state_key, name, ...)
 
     let s:state[a:state_key] = [a:name] + a:000
-    call diapp#RunStoredFeatureFunc(a:state_key)
 
 endfunction
 
