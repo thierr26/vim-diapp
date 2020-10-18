@@ -636,11 +636,14 @@ function s:DiappRefreshUI(...)
     " (to make sure the 'b:diapp_refresh_date', 's:diapp_refresh_count' and
     " 'b:diapp_refresh_count' update is done at the end).
 
+    " Update the state structure.
+    let s:state = s:UpdatedState(s:state)
+
     " Delete the user-defined commands.
     let l:com = diapp#FeatStateKeyCom()
     if exists('s:user_comm_defined')
         for k in keys(s:state.feat)
-            if s:user_comm_defined[k]
+            if s:user_comm_defined[k] && !s:skipped_update[k]
                 for comm in s:state.feat[k][l:com]
                     let l:com_name = comm
                     while l:com_name =~ '^ *-'
@@ -658,7 +661,7 @@ function s:DiappRefreshUI(...)
     let l:map = diapp#FeatStateKeyMap()
     if exists('s:user_map_defined')
         for k in keys(s:state.feat)
-            if s:user_map_defined[k]
+            if s:user_map_defined[k] && !s:skipped_update[k]
                 for comm in s:state.feat[k][l:map]
 
                     let l:key = substitute(comm,
@@ -694,9 +697,6 @@ function s:DiappRefreshUI(...)
             endif
         endfor
     endif
-
-    " Update the state structure.
-    let s:state = s:UpdatedState(s:state)
 
     if has('gui_running')
         " We're running in a Vim with a graphical user interface.
