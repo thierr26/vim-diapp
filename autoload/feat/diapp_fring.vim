@@ -398,6 +398,8 @@ endfunction
 
 function feat#diapp_fring#CannotSkipUpdate()
 
+    " For the file ring feature, feature state dictionary must be
+    " systematically updated.
     return 1
 
 endfunction

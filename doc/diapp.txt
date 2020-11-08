@@ -80,6 +80,13 @@ indicate why it's disabled.
 
 GPRBUILD RELATED COMMANDS                                     *diapp-gprbuild*
 
+GPRbuild is the project manager of the GNAT toolchain. You may want to read the
+following pages for more details:
+https://learn.adacore.com/courses/GNAT_Toolchain_Intro/chapters/gprbuild.html
+http://www-staging.eu.adacore.com/gnatpro/toolsuite/gprbuild/
+
+Diapp offers some commands to invoke GPRbuild from within Vim.
+
                                                    *g:diapp_gprbuild_disabled*
 Set g:diapp_gprbuild_disabled to 1 in your |.vimrc| to disable the whole set
 of commands described in this section. >
