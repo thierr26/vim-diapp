@@ -3,7 +3,7 @@
 
 Author:		Thierry Rascle <thierr26@free.fr>
 For Vim:	7.0 and later
-Last change:	2020-10-18
+Last change:	2020-11-08
 
 
                                DIAPP USER MANUAL
@@ -239,7 +239,7 @@ GPRbuild invocation~
 		|:GPRbuildCompileCurFile| would have elaborated for the body.
 
                                        *g:diapp_gprbuild_compile_unit_mapping*
-		|:GPRbuildCompileCurFile| is mapped by default to <F11> (in
+		|:GPRbuildCompileCurUnit| is mapped by default to <F11> (in
 		both normal and insert mode). Set variable
 		g:diapp_gprbuild_compile_unit_mapping in your |.vimrc| to map
 		the command to another key. Example with <F4>: >
