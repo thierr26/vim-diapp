@@ -3,7 +3,7 @@
 
 Author:		Thierry Rascle <thierr26@free.fr>
 For Vim:	7.0 and later
-Last change:	2020-11-08
+Last change:	2020-11-15
 
 
                                DIAPP USER MANUAL
@@ -15,6 +15,7 @@ CONTENTS                                                      *diapp-contents*
 
 	GENERAL INFORMATION  . . . . . . . . . . . |diapp-general-information|
 	GPRBUILD RELATED COMMANDS  . . . . . . . . |diapp-gprbuild|
+	FAVORITE SHELL COMMANDS RELATED COMMANDS . |diapp-shellfav|
 	FILE RINGS RELATED COMMANDS  . . . . . . . |diapp-file-ring|
 	VIM HELP FILE RELATED ACTIONS AND COMMANDS |diapp-vimhelp|
 	GENERAL COMMANDS . . . . . . . . . . . . . |diapp-general|
@@ -317,6 +318,103 @@ if it were already opened) if GPRbuild exit status is 0: >
                                                     *diapp-gprbuild-auto-fill*
 For files of type "ada", "c", "cpp" or "fortran", the default pattern for the
 |:AF| command is the hyphen ("-").
+
+==============================================================================
+
+
+FAVORITE SHELL COMMANDS RELATED COMMANDS                      *diapp-shellfav*
+
+Diapp makes it possible to add user defined shell commands (user's "favorite
+shell commands") in Vim's menu (the ShellFavs menu), possibly with a mapping,
+to make them easy to launch. An alias is also associated with each command,
+useful to launch them from the |Command-line-mode| using command |SF|.
+
+This diapp feature is anlternative to |:!|.
+
+                                                   *g:diapp_shellfav_disabled*
+Set g:diapp_shellfav_disabled to 1 in your |.vimrc| to disable the whole set
+of commands described in this section. >
+
+	:let g:diapp_shellfav_disabled = 1
+<
+
+Favorite shell commands addition from a file read on startup~
+
+Diapp automatically reads file diapp_shellfavs.txt (if it exists in the
+current directory on startup) and populates the ShellFavs menu based on the
+content of the file. Each line in this file is supposed to be like one of the
+following:
+
+	,<F2>,c1,command_name_1 arg1 arg2 ...
+
+	,c2,command_name_2 arg1 arg2 ...
+
+In the first example, the line is a comma separated list made of:
+
+	A key (used for the mapping) (<F2> in the example).
+
+	An alias to be used with command |SF|.
+
+	A shell command (with zero or more arguments) with a
+leading comma added. Commas (if any) appearing in the shell command are not
+interpreted as separators.
+
+In the second example, there is no key (thus no mapping). It is the absence of
+a leading comma that indicates the absence of a key.
+
+Diapp aborts the reading of the file as soon as it detects that one of the
+condition is true:
+
+	The number of lines in the file is greater than 10.
+
+	The byte length of a line is greater than 300.
+
+You can tune the parameters by setting variables in your |.vimrc|. Examples: >
+
+	:let g:diapp_shellfav_file_line_max_length = 500
+	:let g:diapp_shellfav_file_max_line_count = 20
+	:let g:diapp_shellfav_file_name = "custom_diapp_shellfavs.txt"
+<
+
+Setting g:diapp_shellfav_file_name to an empty string causes Diapp to not
+attempt to read any file.
+
+:EchoShellFavs                                                 *EchoShellFavs*
+	Lists the lines read from the file specified by
+	g:diapp_shellfav_file_name or read from diapp_shellfavs.txt.
+
+Favorite shell commands refresh~
+
+:ReadShellFavsFile                                         *ReadShellFavsFile*
+	Refresh the favorite shell commands. The strategy is the same as for
+	startup. That is:
+
+		Don't read any file if g:diapp_shellfav_file_name is set to an
+		empty string.
+
+		Read the file specified in g:diapp_shellfav_file_name (or
+		don't read any file if this file does not exist).
+
+		Otherwise read file diapp_shellfavs.txt if it exists.
+
+Favorite shell commands invocation~
+
+Users running a version of Vim with the |GUI| (and with |menus| not hidden of
+course) can invoke their favorite shell commands from the ShellFavs menu.
+
+Another option is to use the command |SF|.
+
+:SF {alias}                                                               *SF*
+	Launch the favorite shell command associated with {alias}, as if it
+	had been launched with |!:|.
+
+Favorite shell commands reinvocation~
+
+Command |:RerunLastDiappExtCommand| (mapped by default to <F12>) repeats the
+last invocation of a favorite shell command. Keep in mind that
+:RerunLastDiappExtCommand runs the last external command invoked by a Diapp
+feature. So it may not run the last favorite shell command you invoked but run
+an entirely different command instead.
 
 ==============================================================================
 
