@@ -662,7 +662,7 @@ function s:DiappRefreshUI(...)
     if exists('s:user_map_defined')
         for k in keys(s:state.feat)
             if s:user_map_defined[k] && !s:skipped_update[k]
-                for comm in s:state.feat[k][l:map]
+                for comm in s:state.feat[k]['current_map']
 
                     let l:key = substitute(comm,
                                 \ '^[^ ]\+ \+\([^ ]\+\) .*$', '\1', '')
@@ -744,6 +744,7 @@ function s:DiappRefreshUI(...)
             for comm in s:state.feat[k][l:map]
                 execute comm
             endfor
+            let s:state.feat[k]['current_map'] = s:state.feat[k][l:map]
         endif
     endfor
 
