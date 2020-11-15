@@ -1012,7 +1012,7 @@ function feat#diapp_gprbuild#UpdateState() dict
                 \ 'command': l:cmd . "<CR>",
                 \ 'enabled': l:valid_gpr_candidate}
     let self[l:menu].sub
-        \ = self[l:menu].sub + [l:menu_item_use_cur_file_as_gpr]
+                \ = self[l:menu].sub + [l:menu_item_use_cur_file_as_gpr]
 
     let l:abstract_gpr_warn_msg_arg
                 \ = "'current file is not a concrete GNAT project file'"
