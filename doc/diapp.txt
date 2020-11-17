@@ -68,13 +68,11 @@ if needed (but it shouldn't be needed).
 
 Diapp menus~
                                                                  *diapp-menus*
-Diapp creates menus, available to users running a version of Vim with the
-|GUI| (and with |menus| not hidden of course). The absence of a menu or menu
-item means that the associated command(s) are not available because they're
-not useful at the moment. A menu item may also be present but disabled
-(grayed), which means it's not useful at the moment. In this case, an
-informational text may appear instead of the normal menu item label to
-indicate why it's disabled.
+Diapp creates menus. The absence of a menu or menu item means that the
+associated command(s) are not available because they're not useful at the
+moment. A menu item may also be present but disabled (grayed), which means
+it's not useful at the moment. In this case, an informational text may appear
+instead of the normal menu item label to indicate why it's disabled.
 
 ==============================================================================
 
@@ -407,8 +405,7 @@ Favorite shell commands refresh~
 
 Favorite shell commands invocation~
 
-Users running a version of Vim with the |GUI| (and with |menus| not hidden of
-course) can invoke their favorite shell commands from the ShellFavs menu.
+Users can invoke their favorite shell commands from the ShellFavs menu.
 
 Another option is to use the command |SF|.
 

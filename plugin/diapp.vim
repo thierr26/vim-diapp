@@ -698,26 +698,22 @@ function s:DiappRefreshUI(...)
         endfor
     endif
 
-    if has('gui_running')
-        " We're running in a Vim with a graphical user interface.
+    let l:menu = diapp#FeatStateKeyMenu()
 
-        let l:menu = diapp#FeatStateKeyMenu()
-
-        " Refresh the graphical menu for all the enabled features that actually
-        " have a menu.
-        for k in keys(s:state.feat)
-            if !s:state.feat[k].disabled
-                        \ && !s:skipped_update[k]
-                        \ && has_key(s:state.feat[k], l:menu)
-                try
-                    execute "aunmenu " . s:state.feat[k][l:menu].label
-                catch
-                    " We get there if the feature menu does not yet exist.
-                endtry
-                call s:CreateUIFeatureMenu(k)
-            endif
-        endfor
-    endif
+    " Refresh the graphical menu for all the enabled features that actually
+    " have a menu.
+    for k in keys(s:state.feat)
+        if !s:state.feat[k].disabled
+                    \ && !s:skipped_update[k]
+                    \ && has_key(s:state.feat[k], l:menu)
+            try
+                execute "aunmenu " . s:state.feat[k][l:menu].label
+            catch
+                " We get there if the feature menu does not yet exist.
+            endtry
+            call s:CreateUIFeatureMenu(k)
+        endif
+    endfor
 
     " Refresh the user commands.
     let s:user_comm_defined = deepcopy(s:state.feat)
