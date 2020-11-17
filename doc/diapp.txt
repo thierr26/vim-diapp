@@ -3,7 +3,7 @@
 
 Author:		Thierry Rascle <thierr26@free.fr>
 For Vim:	7.0 and later
-Last change:	2020-11-15
+Last change:	2020-11-17
 
 
                                DIAPP USER MANUAL
@@ -374,6 +374,14 @@ You can tune the parameters by setting variables in your |.vimrc|. Examples: >
 	:let g:diapp_shellfav_file_line_max_length = 500
 	:let g:diapp_shellfav_file_max_line_count = 20
 	:let g:diapp_shellfav_file_name = "custom_diapp_shellfavs.txt"
+<
+
+In the ShellFavs menu, the labels for the command may be truncated if too
+long. The label length limit is 50 characters by default. You can tune this
+value by setting the g:diapp_shellfav_menu_label_max_len in your |.vimrc|.
+Example: >
+
+	:let g:diapp_shellfav_menu_label_max_length = 70
 <
 
 Setting g:diapp_shellfav_file_name to an empty string causes Diapp to not

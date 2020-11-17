@@ -22,6 +22,50 @@ endfunction
 
 " -----------------------------------------------------------------------------
 
+" Return the menu label for a favorite shell command (mapping not included).
+"
+" Argument #1:
+" Current feature state dictionary.
+"
+" Argument #2:
+" Favorite command dictionary (with at least 'cmd' and 'alias' keys).
+"
+" Return value:
+" Menu label for the favorite shell command (already passed through
+" 's:EscapeUIString'.
+
+function s:MenuLabel(s, fav)
+
+    let l:label = a:fav.alias . " (" . a:fav.cmd . ")"
+
+    let l:label_chars = strchars(l:label)
+
+    let l:max_chars = diapp#GetFeatOpt('shellfav',
+                \ a:s,
+                \ 'menu_label_max_length',
+                \ '50')
+
+    if l:label_chars > l:max_chars
+
+        if l:max_chars <= 7
+
+            let l:label = "..."
+
+        else
+
+            let l:label = lib#diapp_vim800func#StrCharPart
+                        \ (l:label, 0, l:max_chars - 5) . "...)"
+
+        endif
+
+    endif
+
+    return s:EscapeUIString(l:label)
+
+endfunction
+
+" -----------------------------------------------------------------------------
+
 " Show (using 'echo') the favorite shell commands.
 "
 " Argument #1:
@@ -294,7 +338,7 @@ function feat#diapp_shellfav#UpdateState() dict
 
         let self[l:menu].sub
                     \ = self[l:menu].sub
-                    \ + [{'label': f.cmd,
+                    \ + [{'label': s:MenuLabel(self, f),
                     \ 'mode': "n",
                     \ 'command': l:cmd,
                     \ 'enabled': 1,
