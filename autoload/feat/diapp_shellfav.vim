@@ -352,22 +352,24 @@ function feat#diapp_shellfav#UpdateState() dict
 
     " -----------------------------------------------------
 
-    let self[l:menu].sub
-                \ = self[l:menu].sub
-                \ + [{'label': '-sep-',
-                \ 'mode': "n",
-                \ 'command': ':',
-                \ 'enabled': 1}]
+    if !empty(self.fav)
 
-    " -----------------------------------------------------
+        let self[l:menu].sub
+                    \ = self[l:menu].sub
+                    \ + [{'label': '-sep-',
+                    \ 'mode': "n",
+                    \ 'command': ':',
+                    \ 'enabled': 1}]
 
-    let self[l:menu].sub
-                \ = self[l:menu].sub
-                \ + [{'label': s:EscapeUIString(
-                \ '&Refresh favorite shell commands'),
-                \ 'mode': "n",
-                \ 'command': ":ReadShellFavsFile<CR>",
-                \ 'enabled': 1}]
+        let self[l:menu].sub
+                    \ = self[l:menu].sub
+                    \ + [{'label': s:EscapeUIString(
+                    \ '&Refresh favorite shell commands'),
+                    \ 'mode': "n",
+                    \ 'command': ":ReadShellFavsFile<CR>",
+                    \ 'enabled': 1}]
+
+    endif
 
     " -----------------------------------------------------
 
