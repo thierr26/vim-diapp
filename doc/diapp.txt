@@ -3,7 +3,7 @@
 
 Author:		Thierry Rascle <thierr26@free.fr>
 For Vim:	7.0 and later
-Last change:	2020-11-17
+Last change:	2020-12-05
 
 
                                DIAPP USER MANUAL
@@ -291,6 +291,9 @@ GPRclean invocation~
 		Elaborate a GPRclean command based on the currently selected
 		GNAT project file (if any) and the defined GPRclean options,
 		and run the command.
+
+		If no GPRclean options are defined, then -P is the only switch
+		used in the GPRclean command.
 
 GPRbuild / GPRclean reinvocation~
 

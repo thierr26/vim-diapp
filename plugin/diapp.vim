@@ -836,11 +836,11 @@ endfunction
 " State dictionary item key.
 "
 " Argument #2:
-" Name of the feature function (like
+" Name of a feature function (like
 " "feat#diapp_<feature name>#<function name>").
 "
 " Other arguments (optional):
-" Any other arguments that need to be passed to the "feature function".
+" Any other arguments that need to be passed to the feature function.
 
 function diapp#StoreFeatureFuncCall(state_key, name, ...)
 
