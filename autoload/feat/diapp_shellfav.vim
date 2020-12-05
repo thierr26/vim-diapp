@@ -268,6 +268,10 @@ function feat#diapp_shellfav#LaunchShellFav(s, alias)
     if empty(l:cmd)
         call diapp#Warn("Unknown alias")
     else
+        call call('diapp#StoreFeatureFuncCall',
+                    \ [diapp#StateKeyLastExtCmd(),
+                    \ 'feat#diapp_shellfav#LaunchShellFav',
+                    \ a:alias])
         execute "!" . l:cmd
     endif
 
