@@ -823,7 +823,11 @@ endfunction
 
 function diapp#RunStoredFeatureFunc(state_key)
 
-    call call('diapp#RunFeatureFunc', s:state[a:state_key])
+    if has_key(s:state, a:state_key)
+        call call('diapp#RunFeatureFunc', s:state[a:state_key])
+    else
+        call diapp#Warn("No command to re-run")
+    endif
 
 endfunction
 
