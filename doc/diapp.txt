@@ -3,7 +3,7 @@
 
 Author:		Thierry Rascle <thierr26@free.fr>
 For Vim:	7.0 and later
-Last change:	2020-12-05
+Last change:	2021-08-05
 
 
                                DIAPP USER MANUAL
@@ -429,7 +429,7 @@ an entirely different command instead.
 
 FILE RINGS RELATED COMMANDS                                  *diapp-file-ring*
 
-A file ring in Diapp is a short list of files and command |:A| makes it
+A file ring in Diapp is a short list of files, and command |:A| makes it
 possible to cycle easily through those files. For example, when you're editing
 a C source file (a .c file), |:A| will open the corresponding header file (.h
 file) in the current window (only if this file exists).

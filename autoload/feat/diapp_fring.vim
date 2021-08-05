@@ -367,6 +367,17 @@ function feat#diapp_fring#EditFRingNext(s)
                 " Nothing more to do.
                 let l:done = 1
 
+            else
+                " Next file in the ring is edited but not in the current tab
+                " page.
+
+                " Write current buffer if modified.
+                if &mod
+                    w
+                endif
+
+                " Bring the next file in the ring to the current window.
+                execute "buffer " . l:nbuf
             endif
         endif
 
