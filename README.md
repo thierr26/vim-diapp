@@ -8,9 +8,9 @@ progress. The author hopes that at some point this plugin (along with [a .vimrc
 file](https://github.com/thierr26/thierr26_config_files/blob/master/.vimrc))
 will be all he needs in his Vim configuration.
 
-The plugin currently contains a few commands and menu items useful to compile
-Ada (or other language) code using [GPRbuild, the project manager of the GNAT
-toolchain](https://learn.adacore.com/courses/GNAT_Toolchain_Intro/chapters/gprbuild.html)
+The plugin contains among others a few commands and menu items useful to
+compile Ada (or other language) code using[GPRbuild, the project manager of the
+GNAT toolchain](https://learn.adacore.com/courses/GNAT_Toolchain_Intro/chapters/gprbuild.html)
 
 The plugin is fully documented in its Vim help file
 (https://github.com/thierr26/vim-diapp/blob/master/doc/diapp.txt). After
