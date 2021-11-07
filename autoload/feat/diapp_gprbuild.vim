@@ -1159,7 +1159,7 @@ function feat#diapp_gprbuild#UpdateState() dict
 
         let self[l:com][-1] = self[l:com][-1]
                     \ . ":call diapp#WarnUnavlCom("
-                    \ .'not an Ada source file'
+                    \ . "'not an Ada source file'"
                     \ . ")"
         let l:ena = 0
 
