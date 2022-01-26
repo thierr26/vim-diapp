@@ -180,41 +180,41 @@ function s:Initialize()
 
     let s:ring.scheme = s:ring.scheme
                 \ + [{'descr': "Ada (.ads for spec, .adb for body)",
-                \ 'expr': ['\(.\+\)\.ads$', '\(.\+\)\.adb$'],
+                \ 'expr': ['^\(.\+\)\.ads$', '^\(.\+\)\.adb$'],
                 \ 'case_sensitive': 0}]
     let s:ring.scheme = s:ring.scheme
                 \ + [{'descr': "Ada (_.ada for spec, .ada for body)",
-                \ 'expr': ['\(.\+\)_\.ada$', '\(.\+\)\.ada$'],
+                \ 'expr': ['^\(.\+\)_\.ada$', '^\(.\+\)\.ada$'],
                 \ 'case_sensitive': 0}]
     let s:ring.scheme = s:ring.scheme
                 \ + [{'descr': "Ada (.1.ada for spec, .2.ada for body)",
-                \ 'expr': ['\(.\+\)\.1\.ada$', '\(.\+\)\.2\.ada$'],
+                \ 'expr': ['^\(.\+\)\.1\.ada$', '^\(.\+\)\.2\.ada$'],
                 \ 'case_sensitive': 0}]
 
     let s:ring.scheme = s:ring.scheme
                 \ + [{'descr': "C/C++ (.h for header, .c for source)",
-                \ 'expr': ['\(.\+\)\.h$', '\(.\+\)\.c$'],
+                \ 'expr': ['^\(.\+\)\.h$', '^\(.\+\)\.c$'],
                 \ 'case_sensitive': 0}]
 
     let s:ring.scheme = s:ring.scheme
                 \ + [{'descr': "C++ (.h for header, .cc for source)",
-                \ 'expr': ['\(.\+\)\.h$', '\(.\+\)\.cc$'],
+                \ 'expr': ['^\(.\+\)\.h$', '^\(.\+\)\.cc$'],
                 \ 'case_sensitive': 0}]
     let s:ring.scheme = s:ring.scheme
                 \ + [{'descr': "C++ (.hh for header, .cc for source)",
-                \ 'expr': ['\(.\+\)\.hh$', '\(.\+\)\.cc$'],
+                \ 'expr': ['^\(.\+\)\.hh$', '^\(.\+\)\.cc$'],
                 \ 'case_sensitive': 0}]
     let s:ring.scheme = s:ring.scheme
                 \ + [{'descr': "C++ (.h for header, .cpp for source)",
-                \ 'expr': ['\(.\+\)\.h$', '\(.\+\)\.cpp$'],
+                \ 'expr': ['^\(.\+\)\.h$', '^\(.\+\)\.cpp$'],
                 \ 'case_sensitive': 0}]
     let s:ring.scheme = s:ring.scheme
                 \ + [{'descr': "C++ (.hpp for header, .cpp for source)",
-                \ 'expr': ['\(.\+\)\.hpp$', '\(.\+\)\.cpp$'],
+                \ 'expr': ['^\(.\+\)\.hpp$', '^\(.\+\)\.cpp$'],
                 \ 'case_sensitive': 0}]
     let s:ring.scheme = s:ring.scheme
                 \ + [{'descr': "C++ (.h for header, .cxx for source)",
-                \ 'expr': ['\(.\+\)\.h$', '\(.\+\)\.cxx$'],
+                \ 'expr': ['^\(.\+\)\.h$', '^\(.\+\)\.cxx$'],
                 \ 'case_sensitive': 0}]
     " REF: https://stackoverflow.com/a/18591926. <2020-07-14>
 
