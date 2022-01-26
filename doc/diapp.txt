@@ -3,10 +3,10 @@
 
 Author:		Thierry Rascle <thierr26@free.fr>
 For Vim:	7.0 and later
-Last change:	2021-08-05
+Last change:	2022-01-26
 
 
-                               DIAPP USER MANUAL
+                              DIAPP USER MANUAL
 
 ==============================================================================
 
