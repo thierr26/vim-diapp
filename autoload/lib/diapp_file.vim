@@ -115,7 +115,7 @@ endfunction
 
 function lib#diapp_file#FileExists(file_name)
 
-    return findfile(a:file_name) ==# a:file_name
+    return findfile(a:file_name, getcwd()) ==# a:file_name
 
 endfunction
 
